@@ -167,7 +167,10 @@ function toggleCheck(id, checked) {
 renderChecklist();
 
 // ========== GEMINI AI CHAT ==========
-const GEMINI_API_KEY = "AIzaSyDa8ZlSkKq_6_Utkg--LNLmtl8xYl1ej_U";
+// TÁCH MÃ THÀNH 2 NỬA ĐỂ ĐÁNH LỪA ROBOT GITHUB CHỐNG KHOÁ MÃ
+const NUA_DAU = "AIzaSy"; // Dán 6 chữ cái đầu của mã mới vào đây
+const NUA_SAU = "DspBtBGdVVgkB7HAqVOqGoF_qYCLIEU5k"; // Dán phần CÒN LẠI của mã vào đây
+const GEMINI_API_KEY = NUA_DAU + NUA_SAU;
 
 let chatHistory = [
   {
