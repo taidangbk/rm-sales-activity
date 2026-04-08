@@ -1,9 +1,9 @@
-// ========== PAGE NAVIGATION ==========
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
-  document.querySelector(`[data-page="${id}"]`).classList.add('active');
+  const navBtn = document.querySelector(`[data-page="${id}"]`);
+  if(navBtn) navBtn.classList.add('active');
   window.scrollTo(0, 0);
 }
 

@@ -74,9 +74,9 @@
           <span class="quick-icon">🤝</span>
           <span class="quick-text">Xin<br>Referral</span>
         </div>
-        <div class="quick-card" style="border-color: rgba(222, 60, 255, 0.5);" onclick="showPage('tools');prefillChat('Hãy đóng vai chuyên gia Marketing, viết cho tôi 1 bài Content Zalo bán gói Vay Mua Ô tô. Bắt buộc dùng khung PAS và có element Cảnh báo (WARNING).')">
-          <span class="quick-icon">📢</span>
-          <span class="quick-text" style="color:#de3cff">Content<br>Marketing</span>
+        <div class="quick-card" style="border-color: rgba(243, 112, 33, 0.5);" onclick="showPage('roadmap')">
+          <span class="quick-icon">📅</span>
+          <span class="quick-text" style="color:var(--vib-orange)">Lộ trình<br>Marketing</span>
         </div>
         <div class="quick-card" style="border-color: rgba(62,207,142,0.5);" onclick="showPage('report')">
           <span class="quick-icon">🚀</span>
@@ -516,6 +516,96 @@ Em đã liên hệ <span class="var">[tên referral]</span> rồi ạ.
 Cảm ơn anh/chị đã giới thiệu! 🙏
 Có tin vui em báo ạ 😊</div>
           <button class="copy-btn" onclick="event.stopPropagation();copyMsg(this)">📋 Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROADMAP 90 DAYS PAGE -->
+    <div class="page" id="page-roadmap">
+      <h2 class="page-title" style="color:var(--vib-orange)">📅 Lộ Trình 90 Ngày</h2>
+      <p class="page-desc">Chỉ định chính xác nội dung cần xây dựng từng tuần để hút khách hàng thụ động.</p>
+
+      <div class="rm-month-card" id="rm-m1">
+        <div class="rm-month-header" onclick="toggleAcc(this.parentElement)">
+          <div>
+            <div class="rm-month-title">Tháng 1: Tạo Trust (Định vị chuyên gia)</div>
+            <div class="rm-month-desc">Giáo dục tư duy tài chính, hướng dẫn thủ tục</div>
+          </div>
+          <span class="acc-arrow" style="color:#fff;font-size:20px">›</span>
+        </div>
+        <div class="rm-month-body">
+          <button class="rm-week-btn" onclick="showPage('tools');prefillChat('Viết bài Facebook Tuần 1: Dùng Concept [HOW-TO]. Chủ đề: Hướng dẫn cách tự tính Room tín dụng trước khi vay mua nhà để không bị từ chối hồ sơ.')">
+            <div class="rm-week-title">Tuần 1: Concept HOW-TO 💡</div>
+            <div class="rm-week-topic">Hướng dẫn tính Room tín dụng hồ sơ mua nhà để không bị ngân hàng trả về.</div>
+          </button>
+          <button class="rm-week-btn" onclick="showPage('tools');prefillChat('Viết bài Zalo Tuần 2: Dùng Concept [POV - Góc nhìn chuyên gia]. Chủ đề: Những lầm tưởng phổ biến về lãi suất thả nổi khiến người trẻ gồng nợ mệt mỏi.')">
+            <div class="rm-week-title">Tuần 2: Concept POV (Góc nhìn) 💡</div>
+            <div class="rm-week-topic">Lầm tưởng về "lãi suất thả nổi" khiến khách hàng gồng nợ.</div>
+          </button>
+          <button class="rm-week-btn" onclick="showPage('tools');prefillChat('Viết bài Facebook Tuần 3: Dùng Concept [CHECKLIST]. Chủ đề: 5 loại giấy tờ các chủ tiệm kinh doanh nhỏ lẻ cần chuẩn bị sẵn để ngân hàng tin tưởng duyệt hạn mức.')">
+            <div class="rm-week-title">Tuần 3: Concept CHECKLIST 💡</div>
+            <div class="rm-week-topic">5 giấy tờ tiểu thương cần sẵn sàng để vay vốn hạn mức không cần báo cáo thuế.</div>
+          </button>
+          <button class="rm-week-btn" onclick="showPage('tools');prefillChat('Viết bài Zalo Tuần 4: Dùng Concept [SHARE TIPS] và công thức AIDA. Chủ đề: Mẹo để được phê duyệt khoản vay cao hơn giá trị thực của căn nhà định mua.')">
+            <div class="rm-week-title">Tuần 4: Concept SHARE TIPS 💡</div>
+            <div class="rm-week-topic">Mẹo vay đủ vốn dù định giá tài sản thấp hơn kỳ vọng.</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="rm-month-card" id="rm-m2">
+        <div class="rm-month-header" onclick="toggleAcc(this.parentElement)">
+          <div>
+            <div class="rm-month-title">Tháng 2: Engagement (Kích thích & Nỗi đau)</div>
+            <div class="rm-month-desc">Khoét sâu Nỗi đau của khách, sử dụng công thức PAS</div>
+          </div>
+          <span class="acc-arrow" style="color:#fff;font-size:20px">›</span>
+        </div>
+        <div class="rm-month-body">
+          <button class="rm-week-btn" style="border-left-color:var(--red)" onclick="showPage('tools');prefillChat('Viết bài Facebook Tuần 5: Dùng vòng lặp PAS và Concept [WARNING/CẢNH BÁO]. Chủ đề: Cảnh báo bẫy đáo hạn thẻ tín dụng chui làm nát lịch sử CIC 5 năm.')">
+            <div class="rm-week-title">Tuần 1: Concept CẢNH BÁO ⚠️</div>
+            <div class="rm-week-topic">Sự nguy hiểm của việc đáo hạn thẻ tín dụng chui phá hỏng điểm CIC.</div>
+          </button>
+          <button class="rm-week-btn" style="border-left-color:var(--red)" onclick="showPage('tools');prefillChat('Viết bài Zalo Tuần 6: Dùng khung PAS và Concept [SECRET/BÍ MẬT]. Chủ đề: Rất nhiều ngân hàng không nói cho bạn cách cơ cấu lại nợ dư nợ cũ lãi cao sang ngân hàng khác lãi thấp.')">
+            <div class="rm-week-title">Tuần 2: Concept THÂM CUNG BÍ SỬ ⚠️</div>
+            <div class="rm-week-topic">Bí mật cơ cấu chuyển nợ gốc (Refinance) để thoát cảnh lãi cao 14%.</div>
+          </button>
+          <button class="rm-week-btn" style="border-left-color:rgba(222,60,255,0.8)" onclick="showPage('tools');prefillChat('Viết bài Facebook Tuần 7: Dùng Concept [Q&A]. Đóng vai RM giải đáp cho 1 KH đang hoảng loạn vì trót mua đất nền kẹt vốn đóng băng, hỏi vay thêm tiền xây nhà kho.')">
+            <div class="rm-week-title">Tuần 3: Concept HỎI - ĐÁP 💬</div>
+            <div class="rm-week-topic">Giải đáp: "Kẹt đất ven đô, muốn vay chồng lên sổ lấy vốn làm ăn được không?"</div>
+          </button>
+          <button class="rm-week-btn" style="border-left-color:var(--vib-blue)" onclick="showPage('tools');prefillChat('Viết bài Zalo Tuần 8: Concept TÂM SỰ. Kể chuyện đời nghề RM: Một ca từ chối hồ sơ đau lòng chỉ vì khách quen thói quen quẹt thẻ trễ hạn 3 ngày.')">
+            <div class="rm-week-title">Tuần 4: Concept TÂM SỰ NGHỀ HIỂU KHÁCH 💬</div>
+            <div class="rm-week-topic">Chuyện đời RM: Tiếc thương 1 hồ sơ xịn rớt đài chỉ vì chậm thẻ 3 ngày.</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="rm-month-card" id="rm-m3">
+        <div class="rm-month-header" onclick="toggleAcc(this.parentElement)">
+          <div>
+            <div class="rm-month-title">Tháng 3: Conversion (Chốt Hẹn & Giải Ngân)</div>
+            <div class="rm-month-desc">Khoe thành tích BAB, đưa Lead Magnet hút khách</div>
+          </div>
+          <span class="acc-arrow" style="color:#fff;font-size:20px">›</span>
+        </div>
+        <div class="rm-month-body">
+          <button class="rm-week-btn" style="border-left-color:var(--green)" onclick="showPage('tools');prefillChat('Viết bài FB Tuần 9: Dùng công thức BAB khoe CASE STUDY. Kể chuyện hôm trước khó khăn không chứng minh được thu nhập mảng online, hôm nay VIB duyệt vay vốn thành công 1 tỷ.')">
+            <div class="rm-week-title">Tuần 1: Concept CASE STUDY (BAB) 🏆</div>
+            <div class="rm-week-topic">Khoe 1 hồ sơ vay lưu động SME online "khó nhằn" được duyệt thần tốc.</div>
+          </button>
+          <button class="rm-week-btn" style="border-left-color:var(--green)" onclick="showPage('tools');prefillChat('Viết bài Zalo Tuần 10: Dùng Concept [HOT NEWS]. Bản tin cực nóng về định giá BĐS đi kèm Gói vay Mua nhà VIB Cố định Biên Độ.')">
+            <div class="rm-week-title">Tuần 2: Concept TIN NÓNG 💥</div>
+            <div class="rm-week-topic">Luật Đất đai mới thay đổi khung giá - Động thái của Bank như thế nào?</div>
+          </button>
+          <button class="rm-week-btn" style="border-left-color:var(--vib-yellow)" onclick="showPage('tools');prefillChat('Viết bài Zalo Tuần 11: Concept Tặng Quà Miễn Phí (Lead Magnet). Đề nghị định giá sơ bộ Miễn Phí tài sản Bất động sản qua Inbox bằng dữ liệu VIB.')">
+            <div class="rm-week-title">Tuần 3: Concept TẶNG QUÀ MIỄN PHÍ 🎁</div>
+            <div class="rm-week-topic">Mồi câu: Nhận định giá sơ bộ Bất động sản Miễn phí dành cho khách hàng Inbox.</div>
+          </button>
+          <button class="rm-week-btn" style="border-left-color:var(--vib-yellow)" onclick="showPage('tools');prefillChat('Viết bài Zalo Tuần 12: Dùng Concept CHỐT SALE TRỰC DIỆN. Nhắc lại chỉ tiêu tuần, mời mọc 3 suất ưu đãi lãi suất cuối cùng chốt sổ tháng này.')">
+            <div class="rm-week-title">Tuần 4: Concept HARD-SALE CHỐT ĐƠN 🎯</div>
+            <div class="rm-week-topic">Kêu gọi hành động khẩn cấp: Chỉ còn 3 suất giải ngân giữ lới với mức lãi X%.</div>
+          </button>
         </div>
       </div>
     </div>
