@@ -102,9 +102,9 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-h
 .pill{padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--dim);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s}
 .pill.active{background:rgba(62,207,142,.12);border-color:rgba(62,207,142,.3);color:var(--green)}
 
-/* ZALO TABS */
-.zalo-tab{display:none}
-.zalo-tab.active{display:block}
+/* ZALO & RATE TABS */
+.zalo-tab, .rate-tab{display:none}
+.zalo-tab.active, .rate-tab.active{display:block}
 .msg-box{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;line-height:1.7;white-space:pre-wrap;color:var(--text)}
 
 /* SAVE STEPS */

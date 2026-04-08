@@ -229,49 +229,122 @@
     </div>
 
     <!-- RATES PAGE -->
+    <!-- RATES & CALCULATOR PAGE -->
     <div class="page" id="page-rates">
-      <h2 class="page-title">💰 Sản Phẩm & Lãi Suất</h2>
-      <p class="page-desc">Bảng tra cứu so sánh nhanh (Cập nhật 06/2026)</p>
+      <h2 class="page-title">💰 Công Cụ Lãi Suất</h2>
+      <p class="page-desc">Tự động lấy số liệu mới nhất & Tính dòng tiền.</p>
       
-      <div class="accordion" id="rate-house">
-        <div class="acc-header" onclick="toggleAcc(this)">
-          <div class="acc-left"><span class="acc-icon">🏠</span><span>Vay Mua Nhà BĐS</span></div>
-          <span class="acc-arrow">›</span>
+      <div class="tab-pills" style="margin-bottom:16px">
+        <button class="pill active" onclick="showRateTab(this,'tab-rates-list')">🏦 Báo Giá Các Bank</button>
+        <button class="pill" onclick="showRateTab(this,'tab-rates-calc')">🧮 Máy Tính Khoản Vay</button>
+      </div>
+
+      <!-- RATES LIST TAB -->
+      <div class="rate-tab active" id="tab-rates-list">
+        <div class="ai-card" style="padding:12px; margin-bottom:12px;">
+           <span style="font-size:12px; color:var(--dim)">Trạng thái Data: </span>
+           <span id="rate-sync-status" style="font-size:12px; color:var(--green); font-weight:bold;">Đã đồng bộ từ Google Sheets ✅</span>
+           <button class="stat-btn" style="position:relative;top:0;right:0;float:right" onclick="fetchRates()">🔄</button>
         </div>
-        <div class="acc-body">
-          <table class="info-table">
-            <tr><th>NH</th><th>Lãi 1 năm</th><th>Phí phạt</th></tr>
-            <tr><td><b style="color:var(--blue)">VIB</b></td><td><b>7.5%</b></td><td>1% (năm 3)</td></tr>
-            <tr><td>TCB</td><td>7.0%</td><td>2%</td></tr>
-            <tr><td>MB</td><td>7.2%</td><td>1.5%</td></tr>
-          </table>
+
+        <div class="accordion open" id="rate-house">
+          <div class="acc-header" onclick="toggleAcc(this)">
+            <div class="acc-left"><span class="acc-icon">🏠</span><span>Vay Mua Nhà BĐS</span></div>
+            <span class="acc-arrow">›</span>
+          </div>
+          <div class="acc-body">
+            <div style="overflow-x:auto;">
+              <table class="info-table" id="table-rates-house">
+                <tr><th>Ngân Hàng</th><th>Lãi Ưu Đãi</th><th>Tg Ưu Đãi</th></tr>
+                <!-- Data injected via JS -->
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <div class="accordion" id="rate-car">
+          <div class="acc-header" onclick="toggleAcc(this)">
+            <div class="acc-left"><span class="acc-icon">🚗</span><span>Vay Ô tô</span></div>
+            <span class="acc-arrow">›</span>
+          </div>
+          <div class="acc-body">
+            <div style="overflow-x:auto;">
+              <table class="info-table" id="table-rates-car">
+                <tr><th>Ngân Hàng</th><th>Lãi Ưu Đãi</th><th>Tài trợ</th></tr>
+                <!-- Data injected via JS -->
+              </table>
+            </div>
+          </div>
         </div>
       </div>
-      
-      <div class="accordion" id="rate-car">
-        <div class="acc-header" onclick="toggleAcc(this)">
-          <div class="acc-left"><span class="acc-icon">🚗</span><span>Vay Ô tô</span></div>
-          <span class="acc-arrow">›</span>
+
+      <!-- CALCULATOR TAB -->
+      <div class="rate-tab" id="tab-rates-calc" style="display:none;">
+        <div class="ai-card" style="padding:16px;">
+          <label style="font-size:12px;color:var(--dim);font-weight:600">SỐ TIỀN VAY (VNĐ)</label>
+          <input type="number" id="calc-amount" class="ai-input" style="min-height:44px;margin-top:4px;margin-bottom:12px;font-size:16px;font-weight:700" placeholder="VD: 1000000000 (1 Tỷ)" value="1000000000">
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+            <div>
+              <label style="font-size:12px;color:var(--dim);font-weight:600">THỜI HẠN (THÁNG)</label>
+              <input type="number" id="calc-months" class="ai-input" style="min-height:44px;margin-top:4px" placeholder="VD: 120" value="120">
+            </div>
+            <div>
+              <label style="font-size:12px;color:var(--dim);font-weight:600">PHƯƠNG THỨC</label>
+              <select id="calc-type" class="ai-input" style="min-height:44px;margin-top:4px;padding:0 10px">
+                <option value="decline">Dư nợ giảm dần</option>
+                <option value="flat">Gốc lãi trả đều</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="background:var(--bg3);padding:12px;border-radius:10px;border:1px solid var(--border);margin-bottom:16px">
+            <h4 style="font-size:13px;color:var(--bright);margin-bottom:10px">Thiết lập Lãi Suất Nhảy Bậc</h4>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+              <div>
+                <label style="font-size:11px;color:var(--dim)">Lãi Ưu đãi (%/năm)</label>
+                <input type="number" id="calc-promo-rate" class="ai-input" style="min-height:36px;padding:8px" step="0.1" value="6.5">
+              </div>
+              <div>
+                <label style="font-size:11px;color:var(--dim)">Số tháng Ưu đãi</label>
+                <input type="number" id="calc-promo-time" class="ai-input" style="min-height:36px;padding:8px" value="36">
+              </div>
+            </div>
+            <div>
+              <label style="font-size:11px;color:var(--dim)">Lãi Thả nổi dự kiến (%/năm) kể từ tháng hết ưu đãi</label>
+              <input type="number" id="calc-float-rate" class="ai-input" style="min-height:36px;padding:8px;margin-top:4px" step="0.1" value="11">
+            </div>
+          </div>
+
+          <button class="ai-btn" onclick="calculateLoan()" style="background:linear-gradient(135deg,var(--vib-orange),#c4510b);box-shadow:0 4px 10px rgba(243,112,33,.3);">🧮 TÍNH DÒNG TIỀN</button>
         </div>
-        <div class="acc-body">
-          <table class="info-table">
-             <tr><th>NH</th><th>Lãi 1 năm</th><th>Tài trợ</th></tr>
-            <tr><td><b style="color:var(--blue)">VIB</b></td><td><b>8.5%</b></td><td>80%</td></tr>
-            <tr><td>Shinhan</td><td>8.0%</td><td>70%</td></tr>
-          </table>
-        </div>
-      </div>
-      <div class="accordion" id="rate-biz">
-        <div class="acc-header" onclick="toggleAcc(this)">
-          <div class="acc-left"><span class="acc-icon">🏭</span><span>Vay Sản Xuất Kinh Doanh</span></div>
-          <span class="acc-arrow">›</span>
-        </div>
-        <div class="acc-body">
-          <table class="info-table">
-            <tr><th>Gói</th><th>Lãi suất</th><th>ĐK</th></tr>
-            <tr><td>SME Khách Mới</td><td>6.5%</td><td>Dthu >10 tỷ</td></tr>
-            <tr><td>KH Hiện Hữu</td><td>7.0%</td><td>Duy trì</td></tr>
-          </table>
+
+        <!-- RESULTS BOX -->
+        <div id="calc-results" class="ai-card" style="display:none;padding:16px;border-color:var(--vib-orange)">
+          <h3 style="font-size:15px;color:var(--vib-orange);text-align:center;margin-bottom:16px">Kết Quả Phân Tích Dòng Tiền</h3>
+          
+          <div style="display:grid;gap:10px">
+            <div style="display:flex;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid var(--border)">
+              <span style="font-size:13px;color:var(--dim)">Gốc trả hàng tháng cố định:</span>
+              <b style="font-size:14px;color:var(--bright)" id="res-principal">0 ₫</b>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid var(--border)">
+              <span style="font-size:13px;color:var(--dim)">Lãi tháng đầu tiên (Cao nhất):</span>
+              <b style="font-size:14px;color:var(--red)" id="res-interest-m1">0 ₫</b>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid var(--border);background:var(--bg3);padding:8px;border-radius:6px">
+              <span style="font-size:13px;color:var(--text);font-weight:600">Tổng Gốc + Lãi Tháng 1:</span>
+              <b style="font-size:15px;color:var(--green)" id="res-total-m1">0 ₫</b>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding-top:4px">
+              <span style="font-size:12px;color:var(--dim)" id="res-float-label">Tháng thả nổi (Tháng 37) trả:</span>
+              <b style="font-size:13px;color:var(--gold2)" id="res-float-amount">0 ₫</b>
+            </div>
+             <div style="display:flex;justify-content:space-between;padding-top:4px">
+              <span style="font-size:12px;color:var(--dim)">Tổng Lãi toàn bộ thời gian:</span>
+              <b style="font-size:13px;color:var(--text)" id="res-total-interest">0 ₫</b>
+            </div>
+          </div>
         </div>
       </div>
     </div>

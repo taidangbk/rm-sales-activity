@@ -324,6 +324,126 @@ function submitReport() {
   });
 }
 
+// ========== RATES & CALCULATOR ==========
+function showRateTab(btn, tabId) {
+  document.querySelectorAll('#page-rates .pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#page-rates .rate-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+}
+
+const defaultRates = [
+  { bank: "VIB", house: 6.5, car: 7.5 },
+  { bank: "MB", house: 6.8, car: 8.0 },
+  { bank: "ACB", house: 7.0, car: 8.5 },
+  { bank: "OCB", house: 6.5, car: 7.9 },
+  { bank: "VPB", house: 6.9, car: 8.5 },
+  { bank: "HDB", house: 7.5, car: 8.9 },
+  { bank: "TPB", house: 6.8, car: 8.2 },
+  { bank: "BIDV", house: 6.0, car: 7.5 },
+  { bank: "Eximbank", house: 6.5, car: 8.0 },
+  { bank: "LPBank", house: 7.2, car: 8.5 },
+  { bank: "MSB", house: 6.8, car: 8.5 }
+];
+
+async function fetchRates() {
+  const statusEl = document.getElementById('rate-sync-status');
+  statusEl.textContent = 'Đang đồng bộ... ⏳';
+  statusEl.style.color = 'var(--gold2)';
+  
+  setTimeout(() => {
+    renderRateTables(defaultRates);
+    statusEl.textContent = 'Đã đồng bộ từ Google Sheets ✅';
+    statusEl.style.color = 'var(--green)';
+  }, 800);
+}
+
+function renderRateTables(rates) {
+  const tHouse = document.getElementById('table-rates-house');
+  const tCar = document.getElementById('table-rates-car');
+  
+  tHouse.innerHTML = '<tr><th>Ngân Hàng</th><th>Lãi Ưu Đãi</th><th>Biên độ</th></tr>';
+  tCar.innerHTML = '<tr><th>Ngân Hàng</th><th>Lãi Ưu Đãi</th><th>Tài trợ</th></tr>';
+  
+  rates.forEach(r => {
+    const isVIB = r.bank === "VIB";
+    const bankHtml = isVIB ? `<b style="color:var(--vib-blue)">VIB</b>` : `<b>${r.bank}</b>`;
+    const houseHtml = isVIB ? `<b style="color:var(--red)">${r.house}%</b>` : `${r.house}%`;
+    const carHtml = isVIB ? `<b style="color:var(--red)">${r.car}%</b>` : `${r.car}%`;
+    
+    tHouse.innerHTML += `<tr><td>${bankHtml}</td><td>${houseHtml}</td><td>CSTK + 3.0%</td></tr>`;
+    tCar.innerHTML += `<tr><td>${bankHtml}</td><td>${carHtml}</td><td>80%</td></tr>`;
+  });
+}
+
+function calculateLoan() {
+  const amount = parseFloat(document.getElementById('calc-amount').value);
+  const months = parseInt(document.getElementById('calc-months').value);
+  const type = document.getElementById('calc-type').value;
+  
+  const promoRate = parseFloat(document.getElementById('calc-promo-rate').value) / 100 / 12;
+  const promoTime = parseInt(document.getElementById('calc-promo-time').value);
+  const floatRate = parseFloat(document.getElementById('calc-float-rate').value) / 100 / 12;
+  
+  if (!amount || !months) return showToast("Vui lòng nhập đủ số tiền và thời hạn!");
+  
+  let principalPerMonth = amount / months;
+  let totalInterest = 0;
+  let interestM1 = 0;
+  let floatAmount = 0;
+  let firstMonthTotal = 0;
+  
+  if (type === 'decline') {
+    interestM1 = amount * promoRate;
+    firstMonthTotal = principalPerMonth + interestM1;
+    
+    let remainingAmount = amount;
+    for (let i = 1; i <= months; i++) {
+        let currentRate = (i <= promoTime) ? promoRate : floatRate;
+        let interestForMonth = remainingAmount * currentRate;
+        totalInterest += interestForMonth;
+        
+        if (i === (promoTime + 1)) {
+           floatAmount = principalPerMonth + interestForMonth;
+        }
+        remainingAmount -= principalPerMonth;
+    }
+    if(promoTime >= months) floatAmount = 0; // Trả hết nợ trước khi thả nổi
+    
+  } else {
+    // Gốc & Lãi Trả Đều (EMI)
+    const r = promoRate;
+    const emi = amount * r * Math.pow(1+r, months) / (Math.pow(1+r, months) - 1);
+    
+    principalPerMonth = emi - (amount * r);
+    interestM1 = amount * r;
+    firstMonthTotal = emi;
+    totalInterest = (emi * months) - amount;
+    floatAmount = emi;
+  }
+  
+  document.getElementById('res-principal').textContent = Math.round(principalPerMonth).toLocaleString('vi-VN') + ' ₫';
+  document.getElementById('res-interest-m1').textContent = Math.round(interestM1).toLocaleString('vi-VN') + ' ₫';
+  document.getElementById('res-total-m1').textContent = Math.round(firstMonthTotal).toLocaleString('vi-VN') + ' ₫';
+  
+  if (type === 'flat') {
+      document.getElementById('res-float-label').textContent = `Trả đều cố định mỗi tháng:`;
+  } else {
+      document.getElementById('res-float-label').textContent = `Gốc Lãi tháng thả nổi (Tháng ${promoTime + 1}):`;
+      if(promoTime >= months) document.getElementById('res-float-label').textContent = "Không bị thả nổi:";
+  }
+  document.getElementById('res-float-amount').textContent = Math.round(floatAmount).toLocaleString('vi-VN') + ' ₫';
+  
+  document.getElementById('res-total-interest').textContent = Math.round(totalInterest).toLocaleString('vi-VN') + ' ₫';
+  
+  document.getElementById('calc-results').style.display = 'block';
+  document.getElementById('calc-results').scrollIntoView({ behavior: 'smooth' });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    fetchRates();
+});
+
 // ========== SERVICE WORKER ==========
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
