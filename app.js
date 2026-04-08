@@ -12,7 +12,7 @@ function toggleAcc(header) {
   const acc = header.parentElement;
   const wasOpen = acc.classList.contains('open');
   // close all in same page
-  acc.parentElement.querySelectorAll('.accordion').forEach(a => a.classList.remove('open'));
+  acc.parentElement.querySelectorAll('.accordion, .rm-month-card').forEach(a => a.classList.remove('open'));
   if (!wasOpen) acc.classList.add('open');
 }
 
