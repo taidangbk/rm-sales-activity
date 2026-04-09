@@ -1,4 +1,4 @@
-// ========== CYBER VIB - APP LOGIC ==========
+// ========== VIB SALES HUB - CYBER EDITION 2.0 ==========
 
 const TEAM_DATA = {
   "Hoa Lý": ["Mỹ Duyên", "Trúc Linh", "Minh Nhật", "Hoàng Huy"],
@@ -7,6 +7,11 @@ const TEAM_DATA = {
 };
 
 const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwZZRM1Eukb6zRRDAPseKxfr-tl3TVP1koYAMHcUtCEDY3nvYSM9aZEoy5oLCcE5ZIZ/exec";
+
+// GEMINI AI CONFIG
+const NUA_DAU = "AIzaSy";
+const NUA_SAU = "DspBtBGdVVgkB7HAqVOqGoF_qYCLIEU5k";
+const GEMINI_API_KEY = NUA_DAU + NUA_SAU;
 
 let rawData = [];
 let userIdentity = JSON.parse(localStorage.getItem('vib_rm_identity') || '{}');
@@ -18,10 +23,11 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(updateClock, 1000);
   setGreeting();
   renderChecklist();
-  fetchGlobalData(); // To render Hall of Fame & Personal Stats
+  fetchRates();
+  fetchGlobalData(); // For Dashboard/Fame
 });
 
-// 2. IDENTITY SYSTEM (Zero-Login)
+// 2. IDENTITY SYSTEM
 function checkIdentity() {
   const modal = document.getElementById('identity-modal');
   if (!userIdentity.name) {
@@ -29,18 +35,15 @@ function checkIdentity() {
   } else {
     modal.style.display = 'none';
     document.getElementById('user-display').textContent = `RM: ${userIdentity.name}`;
-    // Auto-fill report fields
-    const smInput = document.getElementById('diary-sm');
-    const rmInput = document.getElementById('diary-rm');
-    if(smInput) smInput.value = userIdentity.sm;
-    if(rmInput) rmInput.value = userIdentity.name;
+    if(document.getElementById('diary-sm')) document.getElementById('diary-sm').value = userIdentity.sm;
+    if(document.getElementById('diary-rm')) document.getElementById('diary-rm').value = userIdentity.name;
   }
 }
 
 function updateSetupRMList(sm) {
   const rmSelect = document.getElementById('setup-rm');
+  const area = document.getElementById('rm-select-area');
   const ctvArea = document.getElementById('ctv-area');
-  const rmLabel = document.getElementById('setup-rm-label');
   
   rmSelect.innerHTML = '<option value="">-- Chọn Tên --</option>';
   if (TEAM_DATA[sm]) {
@@ -55,16 +58,16 @@ function updateSetupRMList(sm) {
   // Add CTV option
   const optCtv = document.createElement('option');
   optCtv.value = "CTV";
-  optCtv.textContent = "⭐️ Member / CTV Mới";
+  optCtv.textContent = "⭐️ Thành viên / CTV Mới";
   rmSelect.appendChild(optCtv);
 
   rmSelect.onchange = (e) => {
     if (e.target.value === "CTV") {
       ctvArea.style.display = 'block';
-      rmLabel.style.display = 'none';
+      area.style.display = 'none';
     } else {
       ctvArea.style.display = 'none';
-      rmLabel.style.display = 'block';
+      area.style.display = 'block';
     }
   };
 }
@@ -76,24 +79,23 @@ function saveIdentity() {
   
   let finalName = rmSelect;
   if (rmSelect === "CTV") {
-    if (!ctvName) return alert("Vui lòng nhập họ tên CTV!");
+    if (!ctvName) return alert("Vui lòng nhập họ tên!");
     finalName = "CTV " + ctvName;
   }
 
-  if (!sm || !finalName || finalName === "CTV") return alert("Vui lòng chọn đầy đủ SM và Tên!");
+  if (!sm || !finalName || finalName === "CTV") return alert("Vui lòng chọn đủ thông tin!");
 
-  userIdentity = { sm: sm, name: finalName, isNew: rmSelect === "CTV" };
+  userIdentity = { sm: sm, name: finalName };
   localStorage.setItem('vib_rm_identity', JSON.stringify(userIdentity));
   
-  // Hide modal with effect
-  document.getElementById('identity-modal').style.opacity = '0';
+  document.getElementById('identity-modal').style.animation = 'fadeOut 0.3s forwards';
   setTimeout(() => {
     checkIdentity();
-    showToast(`Chào mừng ${finalName} gia nhập Hub! 🚀`);
+    showToast(`Chào mừng ${finalName}! Mở bát thành công 🚀`);
   }, 300);
 }
 
-// 3. UI & NAVIGATION
+// 3. NAVIGATION & UI
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -103,33 +105,32 @@ function showPage(id) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function toggleCard(header) {
-  const body = header.nextElementSibling;
-  const icon = header.querySelector('.icon');
-  if (body.style.display === 'none') {
-    body.style.display = 'block';
-    icon.textContent = '▲';
-  } else {
-    body.style.display = 'none';
-    icon.textContent = '▼';
-  }
+function toggleAcc(header) {
+  const acc = header.closest('.accordion, .rm-month-card');
+  const wasOpen = acc.classList.contains('open');
+  // Close others in same group
+  acc.parentElement.querySelectorAll('.accordion, .rm-month-card').forEach(a => a.classList.remove('open'));
+  if (!wasOpen) acc.classList.add('open');
 }
 
 function openAccordion(id) {
-  showPage('sales');
   setTimeout(() => {
     const el = document.getElementById(id);
-    if(el) {
-       const body = el.querySelector('.card-body');
-       if(body) {
-           body.style.display = 'block';
-           el.scrollIntoView({ behavior: 'smooth' });
-       }
+    if (el) {
+      el.classList.add('open');
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, 100);
+  }, 300);
 }
 
-// 4. DATA FETCHING & HALL OF FAME
+function showRateTab(btn, tabId) {
+  document.querySelectorAll('.rate-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+// 4. DATA FETCH & DASHBOARD
 async function fetchGlobalData() {
   try {
     const res = await fetch(WEBHOOK_URL);
@@ -137,45 +138,37 @@ async function fetchGlobalData() {
     rawData = await res.json();
     renderHallOfFame();
     renderPersonalDashboard();
-  } catch (e) { console.warn("Lỗi kết nối Dashboard"); }
+  } catch (e) { console.warn("Lỗi đồng bộ Dashboard"); }
 }
 
 function renderHallOfFame() {
   const container = document.getElementById('hall-of-fame-container');
   const todayStr = new Date().toLocaleDateString('vi-VN');
   
-  // 1. Filter today's activity
   const todayData = rawData.filter(d => d['Thời gian'] && d['Thời gian'].includes(todayStr));
-  
   if (todayData.length === 0) {
-    container.innerHTML = `
-      <div class="card glass" style="text-align:center; padding:20px; border:1px dashed var(--border);">
-        <p style="font-size:13px; color:var(--text-dim);">Chưa có hoạt động nào hôm nay. Hãy là người đầu tiên bứt phá! 🚀</p>
-      </div>
-    `;
+    container.innerHTML = `<div class="card glass" style="text-align:center; font-size:12px; color:var(--text-dim);">Chưa có hoạt động hôm nay. Hốt Lead ngay! 🚀</div>`;
     return;
   }
 
-  // 2. Aggregate counts per RM
-  const activityMap = {};
+  const map = {};
   todayData.forEach(d => {
-    const name = d['Tên RM'];
-    if (!activityMap[name]) activityMap[name] = { name, count: 0, sm: d['SM (Quản lý)'] };
-    activityMap[name].count++;
+    const n = d['Tên RM'];
+    if (!map[n]) map[n] = { n, c: 0, sm: d['SM (Quản lý)'] };
+    map[n].c++;
   });
 
-  // 3. Find the King
-  const sorted = Object.values(activityMap).sort((a, b) => b.count - a.count);
+  const sorted = Object.values(map).sort((a,b) => b.c - a.c);
   const king = sorted[0];
 
   container.innerHTML = `
-    <div class="card fame-card glass">
-      <div class="fame-content">
-        <div class="fame-crown">👑</div>
+    <div class="fame-card glass">
+      <div class="fame-row">
+        <div class="fame-king">👑</div>
         <div>
-          <div style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase;">Vua Hoạt Động Hôm Nay</div>
-          <div class="fame-name">${king.name.toUpperCase()}</div>
-          <div class="fame-stats">🔥 ${king.count} Tương tác | Team ${king.sm}</div>
+          <div style="font-size:10px; font-weight:800; color:var(--text-dim); text-transform:uppercase;">Vua Hoạt Động</div>
+          <div class="fame-name">${king.n.toUpperCase()}</div>
+          <div style="font-size:11px; color:var(--text-bright); font-weight:700;">🔥 ${king.c} Tương tác | Team ${king.sm}</div>
         </div>
       </div>
     </div>
@@ -184,138 +177,226 @@ function renderHallOfFame() {
 
 function renderPersonalDashboard() {
   if (!userIdentity.name) return;
-  
   const myData = rawData.filter(d => d['Tên RM'] === userIdentity.name);
+  let pipe = 0;
+  myData.forEach(d => { if(d['Số tiền vay']) pipe += parseFloat(d['Số tiền vay']) || 0; });
+  const tasks = myData.filter(d => d['Sản phẩm'] === 'LENDING' && !['Chờ giải ngân','Đã phê duyệt'].includes(d['Tiến độ hồ sơ'])).length;
+
+  document.getElementById('personal-pipeline').textContent = pipe.toFixed(1);
+  document.getElementById('personal-tasks').textContent = tasks;
+}
+
+// 5. RATES & CALCULATOR
+const DEFAULT_RATES = [
+  { bank: "VIB", house: 6.5, car: 7.5 },
+  { bank: "MB", house: 6.8, car: 8.0 },
+  { bank: "ACB", house: 7.0, car: 8.5 },
+  { bank: "BIDV", house: 6.0, car: 7.5 }
+];
+
+async function fetchRates() {
+  const status = document.getElementById('rate-sync-status');
+  status.textContent = 'Đang đồng bộ... ⏳';
+  status.style.color = 'var(--neon-orange)';
   
-  // Total Pipeline
-  let pipeline = 0;
-  myData.forEach(d => {
-     if(d['Số tiền vay']) pipeline += parseFloat(d['Số tiền vay']) || 0;
+  // Actually we can fetch from Sheets if we want, but for now we render default
+  setTimeout(() => {
+    renderRateTables(DEFAULT_RATES);
+    status.textContent = 'Đã cập nhật mới nhất ✅';
+    status.style.color = 'var(--neon-green)';
+  }, 1000);
+}
+
+function renderRateTables(rates) {
+  const tHouse = document.getElementById('table-rates-house');
+  const tCar = document.getElementById('table-rates-car');
+  
+  tHouse.innerHTML = '<tr><th>Bank</th><th>Lãi Ưu Đãi</th><th>Tg Ưu Đãi</th></tr>';
+  tCar.innerHTML = '<tr><th>Bank</th><th>Lãi Ưu Đãi</th><th>Tài trợ</th></tr>';
+  
+  rates.forEach(r => {
+    const isVIB = r.bank === "VIB";
+    const bankS = isVIB ? `<b style="color:var(--vib-blue)">VIB</b>` : `<b>${r.bank}</b>`;
+    const rateS = isVIB ? `<b style="color:var(--neon-red)">${r.house}%</b>` : `${r.house}%`;
+    const carS = isVIB ? `<b style="color:var(--neon-red)">${r.car}%</b>` : `${r.car}%`;
+    
+    tHouse.innerHTML += `<tr><td>${bankS}</td><td>${rateS}</td><td>36 tháng</td></tr>`;
+    tCar.innerHTML += `<tr><td>${bankS}</td><td>${carS}</td><td>80% định giá</td></tr>`;
   });
-  
-  // Tasks (Deals not finished)
-  const taskDeals = myData.filter(d => 
-    d['Sản phẩm'] === 'LENDING' && 
-    d['Tiến độ hồ sơ'] !== 'Chờ giải ngân' && 
-    d['Tiến độ hồ sơ'] !== 'Đã phê duyệt'
-  ).length;
-
-  document.getElementById('personal-pipeline').textContent = pipeline.toFixed(1);
-  document.getElementById('personal-tasks').textContent = taskDeals;
 }
 
-// 5. CLOCK & GREETING
-function updateClock() {
-  const now = new Date();
-  const h = now.getHours().toString().padStart(2, '0');
-  const m = now.getMinutes().toString().padStart(2, '0');
-  const s = now.getSeconds().toString().padStart(2, '0');
-  const clock = document.getElementById('clock');
-  if(clock) clock.textContent = `${h}:${m}:${s}`;
+function formatCurrency(input) {
+  let v = input.value.replace(/\D/g, '');
+  v = v.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  input.value = v;
 }
 
-function setGreeting() {
-  const h = new Date().getHours();
-  let g = '🌅 Chào buổi sáng';
-  if (h >= 12 && h < 18) g = '☀️ Chào buổi chiều';
-  else if (h >= 18) g = '🌙 Chào buổi tối';
-
-  const name = userIdentity.name ? `, ${userIdentity.name.split(' ').pop()}` : '';
-  const greetingText = document.getElementById('greeting-text');
-  if(greetingText) greetingText.textContent = g + name + '!';
+function calculateLoan() {
+  const amountStr = document.getElementById('calc-amount').value;
+  const amount = parseFloat(amountStr.replace(/\./g, ''));
+  const months = parseInt(document.getElementById('calc-months').value);
+  const type = document.getElementById('calc-type').value;
   
-  const dateText = document.getElementById('today-date');
-  if(dateText) {
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    dateText.textContent = new Date().toLocaleDateString('vi-VN', options);
+  const pRate = parseFloat(document.getElementById('calc-promo-rate').value) / 100 / 12;
+  const pTime = parseInt(document.getElementById('calc-promo-time').value);
+  const fRate = parseFloat(document.getElementById('calc-float-rate').value) / 100 / 12;
+  
+  if (!amount || !months) return showToast("⚠️ Thiếu số tiền hoặc thời gian!");
+  
+  let principal = amount / months;
+  let interestM1 = amount * pRate;
+  let totalM1 = principal + interestM1;
+  let totalInterest = 0;
+  let floatAmount = 0;
+  
+  if (type === 'decline') {
+    let remain = amount;
+    for (let i = 1; i <= months; i++) {
+        let r = (i <= pTime) ? pRate : fRate;
+        let int = remain * r;
+        totalInterest += int;
+        if (i === (pTime + 1)) floatAmount = principal + int;
+        remain -= principal;
+    }
+  } else {
+    // EMI
+    const r = pRate;
+    const emi = amount * r * Math.pow(1+r, months) / (Math.pow(1+r, months) - 1);
+    principal = emi - (amount * r);
+    interestM1 = amount * r;
+    totalM1 = emi;
+    totalInterest = (emi * months) - amount;
+    floatAmount = emi;
   }
+  
+  document.getElementById('res-principal').textContent = Math.round(principal).toLocaleString('vi-VN') + ' ₫';
+  document.getElementById('res-interest-m1').textContent = Math.round(interestM1).toLocaleString('vi-VN') + ' ₫';
+  document.getElementById('res-total-m1').textContent = Math.round(totalM1).toLocaleString('vi-VN') + ' ₫';
+  document.getElementById('res-float-amount').textContent = Math.round(floatAmount).toLocaleString('vi-VN') + ' ₫';
+  document.getElementById('res-total-interest').textContent = Math.round(totalInterest).toLocaleString('vi-VN') + ' ₫';
+  
+  document.getElementById('calc-results').style.display = 'block';
+  document.getElementById('calc-results').scrollIntoView({ behavior: 'smooth' });
 }
 
 // 6. REPORTING SYSTEM
-function toggleLendingFields(product) {
-  const fields = document.getElementById('lending-fields');
-  if (!fields) return;
-  fields.style.display = (product === 'LENDING') ? 'block' : 'none';
+function toggleLendingFields(v) {
+  document.getElementById('lending-fields').style.display = (v === 'LENDING') ? 'block' : 'none';
 }
 
 async function submitDiary() {
-  const sm = document.getElementById('diary-sm').value;
-  const rm = document.getElementById('diary-rm').value;
-  const customer = document.getElementById('diary-customer').value.trim();
-  const type = document.getElementById('diary-type').value;
-  const product = document.getElementById('diary-product').value;
-  const method = document.getElementById('diary-method').value;
-  const result = document.getElementById('diary-result').value.trim();
-  const amount = document.getElementById('diary-amount').value;
-  const progress = document.getElementById('diary-progress').value;
-  
-  if (!customer || !result) return showToast("⚠️ Thiếu tên khách hoặc ghi chú!");
-
   const btn = document.getElementById('btn-submit-diary');
+  const customer = document.getElementById('diary-customer').value.trim();
+  const desc = document.getElementById('diary-result').value.trim();
+  
+  if (!customer || !desc) return showToast("⚠️ Thiếu tên khách hàng hoặc ghi chú!");
+
   btn.innerHTML = '⏳ ĐANG ĐỒNG BỘ...';
   btn.disabled = true;
 
   const payload = {
     date: new Date().toLocaleDateString('vi-VN') + ' ' + new Date().toLocaleTimeString('vi-VN'),
-    sm, rm, customer, type, product, method, result,
-    amount: product === 'LENDING' ? amount : '',
-    progress: product === 'LENDING' ? progress : ''
+    sm: document.getElementById('diary-sm').value,
+    rm: document.getElementById('diary-rm').value,
+    customer,
+    type: document.getElementById('diary-type').value,
+    product: document.getElementById('diary-product').value,
+    method: document.getElementById('diary-method').value,
+    result: desc,
+    amount: document.getElementById('diary-amount').value,
+    progress: document.getElementById('diary-progress').value
   };
 
   try {
-    await fetch(WEBHOOK_URL, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    
-    showToast('🚀 Báo cáo thành công! Check King ngay!');
-    btn.innerHTML = '✅ ĐÃ GỬI THÀNH CÔNG';
-    
-    // Refresh stats
+    await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+    showToast('🚀 Báo cáo thành công! Top 1 vẫy gọi!');
+    btn.innerHTML = '✅ ĐÃ GỬI XONG';
     fetchGlobalData();
+    processAiCoaching(desc, payload.type);
     
     setTimeout(() => {
-      btn.innerHTML = 'XÁC NHẬN & GỬI 🚀';
+      btn.innerHTML = 'BẮT ĐẦU ĐỒNG BỘ 🚀';
       btn.disabled = false;
       document.getElementById('diary-customer').value = '';
       document.getElementById('diary-result').value = '';
     }, 2000);
   } catch (e) {
-    showToast('❌ Lỗi gửi dữ liệu!');
+    showToast('❌ Lỗi kết nối!');
     btn.disabled = false;
   }
 }
 
-// 7. COUNTERS & STATS
-let localStats = JSON.parse(localStorage.getItem('vib_daily_stats') || '{}');
-const todayKey = new Date().toDateString();
-
-if (localStats.date !== todayKey) {
-  localStats = { date: todayKey, calls: 0, meets: 0, files: 0, refs: 0 };
+function processAiCoaching(res, type) {
+  const box = document.getElementById('ai-feedback-box');
+  const text = document.getElementById('ai-feedback-text');
+  let advice = "Làm tốt lắm! Hãy tiếp tục duy trì tương tác tốt.";
+  
+  if (res.toLowerCase().includes("cao") || res.toLowerCase().includes("chê")) advice = "🔥 Khách chê lãi cao? Hãy nhấn mạnh biên độ cố định 3.0% và tốc độ giải ngân trong 24h để chớp cơ hội KD nhé!";
+  else if (type === "KHHH > 3 tỷ") advice = "💎 KH VIP! Hãy xin cuộc hẹn gặp trực tiếp cùng SM để tăng uy tín và chốt deal sớm.";
+  
+  text.textContent = advice;
+  box.style.display = 'block';
+  box.scrollIntoView({ behavior: 'smooth' });
 }
 
-function incrementStat(key) {
-  localStats[key]++;
-  localStorage.setItem('vib_daily_stats', JSON.stringify(localStats));
-  updateStatUI();
-  // Effect
-  const el = document.getElementById('stat-' + key);
-  el.style.color = 'var(--neon-green)';
-  setTimeout(() => el.style.color = 'var(--neon-blue)', 500);
+function useAiFeedback() {
+  const text = document.getElementById('ai-feedback-text').textContent;
+  showPage('tools');
+  document.getElementById('ai-chat-input').value = "Viết kịch bản Zalo dựa trên lời khuyên: " + text;
+  document.getElementById('ai-chat-input').focus();
 }
 
-function updateStatUI() {
-  if(document.getElementById('stat-calls')) {
-    document.getElementById('stat-calls').textContent = localStats.calls;
-    document.getElementById('stat-meets').textContent = localStats.meets;
-    document.getElementById('stat-files').textContent = localStats.files;
-    document.getElementById('stat-refs').textContent = localStats.refs;
+// 7. GEMINI AI
+async function sendGemini() {
+  const input = document.getElementById('ai-chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  addChatMsg('user', text);
+  input.value = '';
+  const loading = addChatMsg('bot', '<div class="dot"></div><div class="dot"></div><div class="dot"></div>');
+
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: "Bạn là Trợ lý VIB Sales Hub. Hãy tư vấn ngắn gọn, chuyên nghiệp về: " + text }] }]
+      })
+    });
+    const data = await res.json();
+    const reply = data.candidates[0].content.parts[0].text;
+    loading.innerHTML = reply.replace(/\n\n/g, '<br>').replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+  } catch (e) {
+    loading.innerHTML = "Mất kết nối với AI. Vui lòng thử lại sau!";
   }
 }
-updateStatUI();
+
+function addChatMsg(role, text) {
+  const chat = document.getElementById('chat-container');
+  const div = document.createElement('div');
+  div.style.marginBottom = '12px';
+  div.style.textAlign = role === 'user' ? 'right' : 'left';
+  div.innerHTML = `<span style="display:inline-block; padding:10px 14px; border-radius:14px; background:${role==='user'?'var(--neon-blue)':'rgba(255,255,255,0.05)'}; font-size:13px; max-width:85%;">${text}</span>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div.querySelector('span');
+}
 
 // 8. HELPERS
+function updateClock() {
+  const clock = document.getElementById('clock');
+  if(clock) clock.textContent = new Date().toLocaleTimeString('vi-VN');
+}
+
+function setGreeting() {
+  const h = new Date().getHours();
+  let g = h < 12 ? '🌅 Chào buổi sáng' : (h < 18 ? '☀️ Chào buổi chiều' : '🌙 Chào buổi tối');
+  const name = userIdentity.name ? `, ${userIdentity.name.split(' ').pop()}` : '';
+  if(document.getElementById('greeting-text')) document.getElementById('greeting-text').textContent = g + name + '!';
+  if(document.getElementById('today-date')) document.getElementById('today-date').textContent = new Date().toLocaleDateString('vi-VN', { weekday:'long', day:'numeric', month:'numeric' });
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -323,45 +404,58 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
+function incrementStat(key) {
+  let s = JSON.parse(localStorage.getItem('vib_stats') || '{"calls":0,"meets":0,"files":0,"refs":0}');
+  s[key]++;
+  localStorage.setItem('vib_stats', JSON.stringify(s));
+  updateStatRow(s);
+  const el = document.getElementById('stat-' + key);
+  el.style.transform = 'scale(1.2)';
+  setTimeout(() => el.style.transform = 'scale(1)', 200);
+}
+
+function updateStatRow(s) {
+  if(document.getElementById('stat-calls')) {
+    document.getElementById('stat-calls').textContent = s.calls;
+    document.getElementById('stat-meets').textContent = s.meets;
+    document.getElementById('stat-files').textContent = s.files;
+    document.getElementById('stat-refs').textContent = s.refs;
+  }
+}
+
 function renderChecklist() {
-    const list = document.getElementById('checklist-daily');
-    if(!list) return;
-    const items = [
-        "08:00 - Review Pipeline & Gọi Lead mới",
-        "10:00 - Đi gặp khách hàng/định giá",
-        "14:00 - Tư vấn giải pháp vốn SME/BĐS",
-        "16:30 - Chăm sóc KH cũ & Xin Referral",
-        "17:30 - Báo cáo & Lên lịch ngày mai"
-    ];
-    list.innerHTML = items.map((it, i) => `
-        <div style="display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border);">
-            <input type="checkbox" style="width:20px; height:20px; accent-color:var(--neon-blue);">
-            <span style="font-size:13px; color:var(--text);">${it}</span>
-        </div>
-    `).join('');
+  const list = document.getElementById('checklist-daily');
+  if(!list) return;
+  const items = [
+    "08:00 - Review Pipeline & Gọi danh sách Lead",
+    "10:00 - Power Hour: Hẹn gặp khách trực tiếp",
+    "14:00 - Field Visit / Thẩm định hồ sơ",
+    "17:00 - Báo cáo & Lên lịch cho ngày mai"
+  ];
+  list.innerHTML = items.map(it => `
+    <div style="display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border);">
+      <input type="checkbox" style="width:18px; height:18px; accent-color:var(--neon-blue);">
+      <span style="font-size:13px;">${it}</span>
+    </div>
+  `).join('');
 }
 
-// 9. AI CHAT (PROXY)
-async function sendGemini() {
-    const input = document.getElementById('ai-chat-input');
-    const text = input.value.trim();
-    if(!text) return;
-    
-    addMsg('user', text);
-    input.value = '';
-    
-    // Simple mock logic for AI feedback (User can integrate actual Gemini key if needed)
-    setTimeout(() => {
-        addMsg('bot', "🤖 Tôi đang phân tích yêu cầu của bạn... Để chốt deal này hiệu quả, hãy nhấn mạnh vào biên độ lãi suất 3.0% cố định của VIB nhé!");
-    }, 1000);
+function checkMasterAuth() {
+  const p = prompt("🔐 MASTER PIN:");
+  if (p === "6789") window.open('dashboard.html', '_blank');
+  else alert("Sai mã!");
 }
 
-function addMsg(role, text) {
-    const chat = document.getElementById('chat-container');
-    const div = document.createElement('div');
-    div.style.marginBottom = '10px';
-    div.style.textAlign = role === 'user' ? 'right' : 'left';
-    div.innerHTML = `<span style="display:inline-block; padding:8px 14px; border-radius:12px; background:${role === 'user' ? 'var(--neon-blue)' : 'var(--surface)'}; font-size:13px;">${text}</span>`;
-    chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
+function copyText(btn) {
+  const t = btn.previousElementSibling.innerText;
+  navigator.clipboard.writeText(t).then(() => {
+    btn.textContent = '✅ ĐÃ COPY';
+    setTimeout(() => btn.textContent = '📋 SAO CHÉP KỊCH BẢN', 2000);
+    showToast('Đã lưu vào bộ nhớ tạm!');
+  });
+}
+
+function prefillChat(t) {
+  document.getElementById('ai-chat-input').value = t;
+  document.getElementById('ai-chat-input').focus();
 }

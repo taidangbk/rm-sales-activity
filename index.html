@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#020617">
-<title>VIB Sales Hub – Gen Z Edition</title>
+<title>VIB Sales Hub – Gen Z Cyber Edition</title>
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -16,8 +16,8 @@
 <!-- IDENTITY SETUP MODAL (Zero-Login) -->
 <div id="identity-modal" class="modal-overlay" style="display:flex;">
   <div class="modal-content glass">
-    <h2 style="font-size:24px; font-weight:900; margin-bottom:8px; background:var(--grad-primary); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Nhận diện RM/CTV</h2>
-    <p style="font-size:13px; color:var(--text-dim); margin-bottom:24px;">Chào mừng bạn đến với hệ thống VIB Sales Hub. Hãy thiết lập danh tính một lần duy nhất.</p>
+    <h2 style="font-size:24px; font-weight:900; margin-bottom:8px; background:var(--grad-primary); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Nhận diện RM/Hub</h2>
+    <p style="font-size:13px; color:var(--text-dim); margin-bottom:20px;">Chào mừng bạn! Hãy thiết lập danh tính một lần duy nhất để bắt đầu đua Top.</p>
     
     <label style="font-size:11px; font-weight:700; color:var(--neon-blue); text-transform:uppercase;">Quản lý trực tiếp (SM)</label>
     <select id="setup-sm" class="ai-input" style="margin:8px 0 16px;" onchange="updateSetupRMList(this.value)">
@@ -27,17 +27,19 @@
       <option value="Đức Tài">SM Đức Tài</option>
     </select>
 
-    <label id="setup-rm-label" style="font-size:11px; font-weight:700; color:var(--neon-blue); text-transform:uppercase;">Tên của bạn</label>
-    <select id="setup-rm" class="ai-input" style="margin:8px 0 16px;">
-      <option value="">-- Chọn Tên --</option>
-    </select>
+    <div id="rm-select-area">
+      <label style="font-size:11px; font-weight:700; color:var(--neon-blue); text-transform:uppercase;">Tên của bạn</label>
+      <select id="setup-rm" class="ai-input" style="margin:8px 0 16px;">
+        <option value="">-- Chọn Tên --</option>
+      </select>
+    </div>
     
     <div id="ctv-area" style="display:none;">
-      <label style="font-size:11px; font-weight:700; color:var(--neon-purple); text-transform:uppercase;">Họ tên Member/CTV</label>
+      <label style="font-size:11px; font-weight:700; color:var(--neon-purple); text-transform:uppercase;">Họ tên Member / CTV Mới</label>
       <input type="text" id="setup-ctv-name" class="ai-input" style="margin:8px 0 16px;" placeholder="Nhập họ tên đầy đủ...">
     </div>
 
-    <button class="ai-btn" style="width:100%;" onclick="saveIdentity()">BẮT ĐẦU NGAY 🚀</button>
+    <button class="ai-btn" style="width:100%; margin-top:10px;" onclick="saveIdentity()">BẮT ĐẦU NGAY 🚀</button>
   </div>
 </div>
 
@@ -47,38 +49,38 @@
     <div class="header-left">
       <div class="logo">VIB</div>
       <div>
-        <div class="header-title">Sales Hub</div>
-        <div class="header-sub" id="user-display">Gen Z Edition</div>
+        <div class="header-title">Sales Hub Hub</div>
+        <div class="header-sub" id="user-display">Cyber Edition</div>
       </div>
     </div>
-    <div class="header-time" id="clock" style="font-weight:700; color:var(--neon-blue);"></div>
+    <div class="header-time" id="clock">00:00:00</div>
   </header>
 
-  <!-- PAGES AREA -->
+  <!-- MAIN CONTENT -->
   <main class="content">
 
-    <!-- HOME PAGE -->
+    <!-- 🏠 HOME PAGE -->
     <div class="page active" id="page-home">
       <div class="page-header">
         <h1 class="page-title" id="greeting-text">Chào buổi sáng!</h1>
         <p class="page-desc" id="today-date"></p>
       </div>
 
-      <!-- LEADERSHIP / HALL OF FAME -->
+      <!-- HALL OF FAME -->
       <div id="hall-of-fame-container">
         <!-- Injected via JS -->
       </div>
       
-      <!-- PERSONAL PIPELINE SNAPSHOT -->
-      <div class="card glass" style="padding:16px; margin-bottom:20px; border-color:rgba(14, 165, 233, 0.2);">
+      <!-- PERSONAL STATS -->
+      <div class="card glass" style="padding:16px; border-color:rgba(14, 165, 233, 0.2);">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <div style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase;">Pipeline cá nhân</div>
+            <div style="font-size:10px; font-weight:800; color:var(--text-dim); text-transform:uppercase;">Túi Hồ Sơ (Pipeline)</div>
             <div style="font-size:24px; font-weight:900; color:var(--text-bright);"><span id="personal-pipeline">0</span>T</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase;">Cần xử lý</div>
-            <div style="font-size:18px; font-weight:800; color:var(--neon-purple);"><span id="personal-tasks">0</span> Deals</div>
+            <div style="font-size:10px; font-weight:800; color:var(--text-dim); text-transform:uppercase;">Cần xử lý</div>
+            <div style="font-size:18px; font-weight:900; color:var(--neon-purple);"><span id="personal-tasks">0</span> Hồ sơ</div>
           </div>
         </div>
       </div>
@@ -108,99 +110,256 @@
         <div class="stat-bubble">
           <div class="stat-num glow-text" id="stat-calls">0</div>
           <div class="stat-label">Cuộc gọi</div>
-          <button class="ai-btn" style="padding:4px 12px; font-size:12px; margin-top:8px;" onclick="incrementStat('calls')">+1</button>
+          <button class="ai-btn" style="padding:4px 12px; font-size:11px; margin-top:8px; width:100%" onclick="incrementStat('calls')">+1</button>
         </div>
         <div class="stat-bubble">
           <div class="stat-num glow-text" id="stat-meets">0</div>
           <div class="stat-label">Cuộc hẹn</div>
-          <button class="ai-btn" style="padding:4px 12px; font-size:12px; margin-top:8px;" onclick="incrementStat('meets')">+1</button>
+          <button class="ai-btn" style="padding:4px 12px; font-size:11px; margin-top:8px; width:100%" onclick="incrementStat('meets')">+1</button>
         </div>
         <div class="stat-bubble">
           <div class="stat-num glow-text" id="stat-files">0</div>
           <div class="stat-label">Hồ sơ</div>
-          <button class="ai-btn" style="padding:4px 12px; font-size:12px; margin-top:8px;" onclick="incrementStat('files')">+1</button>
+          <button class="ai-btn" style="padding:4px 12px; font-size:11px; margin-top:8px; width:100%" onclick="incrementStat('files')">+1</button>
         </div>
         <div class="stat-bubble">
           <div class="stat-num glow-text" id="stat-refs">0</div>
           <div class="stat-label">Referral</div>
-          <button class="ai-btn" style="padding:4px 12px; font-size:12px; margin-top:8px;" onclick="incrementStat('refs')">+1</button>
+          <button class="ai-btn" style="padding:4px 12px; font-size:11px; margin-top:8px; width:100%" onclick="incrementStat('refs')">+1</button>
         </div>
       </div>
       
-      <div class="card glass" style="padding:20px;">
-        <div style="font-weight:900; font-size:16px; margin-bottom:12px; color:var(--text-bright);">📝 Checklist công việc</div>
+      <div class="card glass">
+        <div style="font-weight:900; font-size:15px; margin-bottom:12px; color:var(--text-bright);">📋 Checklist công việc hôm nay</div>
         <div id="checklist-daily">
-          <!-- Dynamic checklist -->
+          <!-- Dynamic checklist injected by JS -->
         </div>
       </div>
     </div>
 
-    <!-- SALES PAGE -->
+    <!-- 🎯 SALES PAGE -->
     <div class="page" id="page-sales">
       <div class="page-header">
         <h2 class="page-title">🎯 Tài Liệu Bán Hàng</h2>
-        <p class="page-desc">Vũ khí tối thượng để chốt deal.</p>
+        <p class="page-desc">Vũ khí chuyên dụng để chinh phục khách hàng.</p>
       </div>
 
-      <div class="card glass" id="cold-call">
-        <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleCard(this)">
-          <div style="font-weight:800; font-size:16px;">📞 Kịch bản gọi điện (60s)</div>
-          <span class="icon">▼</span>
+      <div class="accordion" id="cold-call">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-left"><span class="acc-icon">📞</span><span>Kịch bản gọi điện (60s)</span></div>
+          <span class="acc-arrow">›</span>
         </div>
-        <div class="card-body" style="display:none; margin-top:16px; border-top:1px solid var(--border); padding-top:16px;">
-          <div style="background:rgba(0,0,0,0.2); border-radius:12px; padding:16px; font-size:14px; line-height:1.7;">
-            <p><b>HOOK:</b> Chào anh/chị [Tên], em [Tên] từ VIB.</p>
-            <p><b>VALUE:</b> VIB đang hỗ trợ vay vốn KD chỉ từ 6.5%, duyệt hồ sơ trong 24h.</p>
-            <p><b>CLOSE:</b> Em qua gửi anh chị bảng tính dòng tiền nhé?</p>
+        <div class="acc-body">
+          <div class="script-box">
+            <p><b>HOOK (5s):</b> Chào anh/chị <span class="var">[Tên]</span>, em <span class="var">[Tên]</span> từ VIB. Em gọi vì biết anh chị đang quan tâm vay vốn...</p>
+            <p><b>VALUE (15s):</b> VIB đang có chương trình hỗ trợ KD chỉ <span class="var">6.5%</span>, duyệt hồ sơ trong <span class="var">24h</span>.</p>
+            <p><b>QUALIFY (30s):</b> Anh/chị hiện có nhu cầu vốn cho mục đích gì không ạ?</p>
+            <p><b>CLOSE (10s):</b> Em xin 20 phút gặp anh/chị. Thứ 2 hay Thứ 3 tiện hơn ạ?</p>
           </div>
-          <button class="ai-btn" style="width:100%; margin-top:12px;" onclick="copyText(this)">SAO CHÉP KỊCH BẢN</button>
+          <button class="ai-btn" style="width:100%; margin-top:12px;" onclick="copyText(this)">📋 SAO CHÉP KỊCH BẢN</button>
         </div>
       </div>
 
-      <div class="card glass" id="objection">
-        <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleCard(this)">
-          <div style="font-weight:800; font-size:16px;">🛡️ Xử lý 10 từ chối phổ biến</div>
-          <span class="icon">▼</span>
+      <div class="accordion" id="spin">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-left"><span class="acc-icon">🎯</span><span>Tư vấn SPIN (Gặp trực tiếp)</span></div>
+          <span class="acc-arrow">›</span>
         </div>
-        <div class="card-body" style="display:none; margin-top:16px; border-top:1px solid var(--border); padding-top:16px;">
-          <!-- Objection items -->
-          <div style="margin-bottom:12px; padding:12px; background:rgba(239, 68, 68, 0.1); border-radius:12px;">
-             <b style="color:var(--neon-red)">❌ "Lãi suất cao quá"</b>
-             <p style="font-size:13px; margin-top:4px;">✅ "Dạ em hiểu, lãi headline có vẻ cao nhưng nếu tính tổng ưu đãi và tốc độ giải ngân để kịp chớp cơ hội KD thì VIB là tối ưu nhất ạ."</p>
+        <div class="acc-body">
+          <div class="script-box">
+            <p><b>S – Situation:</b> Nguồn vốn KD hiện tại từ đâu?</p>
+            <p><b>P – Problem:</b> Có gặp khó khăn về vòng quay vốn?</p>
+            <p><b>I – Implication:</b> Nếu thiếu vốn kéo dài, lo ngại gì nhất?</p>
+            <p><b>N – Need-Payoff:</b> Nếu VIB giải ngân trong ngày, giúp gì cho chị?</p>
+          </div>
+          <button class="ai-btn" style="width:100%; margin-top:12px;" onclick="copyText(this)">📋 SAO CHÉP</button>
+        </div>
+      </div>
+
+      <div class="accordion" id="objection">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-left"><span class="acc-icon">🛡️</span><span>Xử lý 10 từ chối phổ biến</span></div>
+          <span class="acc-arrow">›</span>
+        </div>
+        <div class="acc-body" id="objection-list">
+          <!-- Objections injected via JS/HTML -->
+          <div class="card glass" style="padding:12px; margin-bottom:8px;" onclick="this.classList.toggle('open')">
+            <div style="color:var(--neon-red); font-weight:800; font-size:13px;">❌ "Lãi suất cao quá"</div>
+            <div style="display:none; font-size:12px; color:var(--text); margin-top:8px; border-top:1px solid var(--border); padding-top:8px;" class="obj-a">
+               ✅ "Em hiểu ạ. Hiện tại bên em biên độ cố định 3.0%, các bank khác headline thấp nhưng biên độ thả nổi cao hơn. Anh chị tính tổng chi phí 5 năm sẽ thấy VIB rẻ hơn đấy ạ."
+            </div>
+          </div>
+          <!-- More items can follow ... -->
+        </div>
+      </div>
+
+      <div class="accordion" id="pipeline">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-left"><span class="acc-icon">📊</span><span>Pipeline 7 bước & Tỷ lệ</span></div>
+          <span class="acc-arrow">›</span>
+        </div>
+        <div class="acc-body">
+          <div class="pipeline-pip">
+            <div class="pipe-step"><div class="pipe-num">1</div><div class="pipe-text"><span>Tìm Lead</span><b>100 lead</b></div></div>
+            <div style="color:var(--text-dim);font-size:11px">↓ 30%</div>
+            <div class="pipe-step"><div class="pipe-num">2</div><div class="pipe-text"><span>Gọi điện</span><b>30 cuộc</b></div></div>
+            <div style="color:var(--text-dim);font-size:11px">↓ 40%</div>
+            <div class="pipe-step"><div class="pipe-num">3</div><div class="pipe-text"><span>Hẹn gặp</span><b>12 hẹn</b></div></div>
+            <div style="color:var(--text-dim);font-size:11px">↓ 60%</div>
+            <div class="pipe-step"><div class="pipe-num">4</div><div class="pipe-text"><span>Tư vấn</span><b>7 deal</b></div></div>
+            <div style="color:var(--text-dim);font-size:11px">↓ 70%</div>
+            <div class="pipe-step"><div class="pipe-num">5</div><div class="pipe-text"><span>Nộp hồ sơ</span><b>5 hồ sơ</b></div></div>
+            <div style="color:var(--text-dim);font-size:11px">↓ 80%</div>
+            <div class="pipe-step"><div class="pipe-num">6</div><div class="pipe-text"><span>Phê duyệt</span><b>4 duyệt</b></div></div>
+            <div style="color:var(--text-dim);font-size:11px">↓</div>
+            <div class="pipe-step" style="border-color:var(--neon-green)"><div class="pipe-num" style="background:var(--neon-green)">7</div><div class="pipe-text" style="color:var(--neon-green)"><span>Giải ngân</span><b>4 khoản</b></div></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- REPORT PAGE -->
+    <!-- 💰 RATES PAGE -->
+    <div class="page" id="page-rates">
+      <div class="page-header">
+        <h2 class="page-title">💰 Công Cụ Lãi Suất</h2>
+        <p class="page-desc">Số liệu cập nhật & Máy tính dòng tiền thông minh.</p>
+      </div>
+      
+      <div class="tab-pills glass" style="margin-bottom:16px; padding:6px; border-radius:24px;">
+        <button class="pill active" onclick="showRateTab(this,'tab-rates-list')">🏦 Báo Giá Các Bank</button>
+        <button class="pill" onclick="showRateTab(this,'tab-rates-calc')">🧮 Máy Tính Khoản Vay</button>
+      </div>
+
+      <div class="rate-tab active" id="tab-rates-list">
+        <div class="card glass" style="padding:12px; margin-bottom:12px;">
+           <div style="display:flex; justify-content:space-between; align-items:center;">
+             <span id="rate-sync-status" style="font-size:11px; font-weight:bold; color:var(--neon-green);">Đã đồng bộ từ Sheets ✅</span>
+             <button class="ai-btn" style="padding:6px; font-size:12px;" onclick="fetchRates()">🔄 Update</button>
+           </div>
+        </div>
+
+        <div class="accordion open" id="rate-house">
+          <div class="acc-header" onclick="toggleAcc(this)">
+            <div class="acc-left"><span class="acc-icon">🏠</span><span>Vay Mua Nhà BĐS</span></div>
+            <span class="acc-arrow">›</span>
+          </div>
+          <div class="acc-body">
+            <table class="info-table" id="table-rates-house">
+              <tr><th>Bank</th><th>Lãi Ưu Đãi</th><th>Tg Ưu Đãi</th></tr>
+              <!-- JS Injected -->
+            </table>
+          </div>
+        </div>
+        
+        <div class="accordion" id="rate-car">
+          <div class="acc-header" onclick="toggleAcc(this)">
+            <div class="acc-left"><span class="acc-icon">🚗</span><span>Vay Ô tô</span></div>
+            <span class="acc-arrow">›</span>
+          </div>
+          <div class="acc-body">
+            <table class="info-table" id="table-rates-car">
+              <tr><th>Bank</th><th>Lãi Ưu Đãi</th><th>Tài trợ</th></tr>
+              <!-- JS Injected -->
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="rate-tab" id="tab-rates-calc">
+        <div class="card glass">
+          <label style="font-size:10px; font-weight:800; color:var(--text-dim);">SỐ TIỀN VAY (VNĐ)</label>
+          <input type="text" inputmode="numeric" id="calc-amount" class="ai-input" style="margin-bottom:12px; font-size:18px; font-weight:900; color:var(--neon-blue);" placeholder="VD: 1.000.000.000 (1 Tỷ)" value="1.000.000.000" oninput="formatCurrency(this)">
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+            <div>
+              <label style="font-size:10px; font-weight:800; color:var(--text-dim);">THỜI HẠN (THÁNG)</label>
+              <input type="number" id="calc-months" class="ai-input" value="120">
+            </div>
+            <div>
+              <label style="font-size:10px; font-weight:800; color:var(--text-dim);">PHƯƠNG THỨC</label>
+              <select id="calc-type" class="ai-input">
+                <option value="decline">Dư nợ giảm dần</option>
+                <option value="flat">Gốc lãi trả đều</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="background:rgba(0,0,0,0.2); padding:16px; border-radius:16px; border:1px solid var(--border); margin-bottom:16px;">
+            <h4 style="font-size:12px; font-weight:800; margin-bottom:12px; color:var(--text-bright);">THIẾT LẬP LÃI NHẢY BẬC</h4>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+              <div>
+                <label style="font-size:10px; color:var(--text-dim);">Lãi Ưu đãi (%/năm)</label>
+                <input type="number" id="calc-promo-rate" class="ai-input" value="6.5" step="0.1">
+              </div>
+              <div>
+                <label style="font-size:10px; color:var(--text-dim);">Số tháng Ưu đãi</label>
+                <input type="number" id="calc-promo-time" class="ai-input" value="36">
+              </div>
+            </div>
+            <label style="font-size:10px; color:var(--text-dim);">Lãi Thả nổi dự kiến (%/năm)</label>
+            <input type="number" id="calc-float-rate" class="ai-input" value="11" step="0.1">
+          </div>
+
+          <button class="ai-btn" style="width:100%;" onclick="calculateLoan()">🧮 TÍNH DÒNG TIỀN CHI TIẾT</button>
+        </div>
+
+        <div id="calc-results" class="card glass" style="display:none; border-color:var(--neon-blue);">
+          <h3 style="font-size:16px; font-weight:900; color:var(--neon-blue); text-align:center; margin-bottom:16px;">Kết Quả Phân Tích</h3>
+          <div style="display:grid; gap:12px;">
+            <div style="display:flex; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border);">
+              <span style="font-size:13px; color:var(--text-dim);">Gốc hàng tháng:</span>
+              <b id="res-principal">0 ₫</b>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border);">
+              <span style="font-size:13px; color:var(--text-dim);">Lãi tháng 1:</span>
+              <b id="res-interest-m1" style="color:var(--neon-red);">0 ₫</b>
+            </div>
+            <div style="display:flex; justify-content:space-between; background:rgba(34, 197, 94, 0.1); padding:10px; border-radius:10px;">
+              <span style="font-size:13px; font-weight:800;">Tổng trả tháng 1:</span>
+              <b id="res-total-m1" style="color:var(--neon-green); font-size:15px;">0 ₫</b>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span id="res-float-label" style="font-size:11px; color:var(--text-dim);">Tháng thả nổi (37):</span>
+              <b id="res-float-amount" style="font-size:12px;">0 ₫</b>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <span style="font-size:11px; color:var(--text-dim);">Tổng Lãi toàn kỳ:</span>
+              <b id="res-total-interest" style="font-size:12px;">0 ₫</b>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🚀 REPORT PAGE -->
     <div class="page" id="page-report">
       <div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-end;">
         <div>
-          <h2 class="page-title">🚀 Báo Cáo Nhật Ký</h2>
-          <p class="page-desc">Ghi nhận nhanh - Đua top ngày.</p>
+          <h2 class="page-title">🚀 Nhật Ký Báo Cáo</h2>
+          <p class="page-desc">Ghi nhận nhanh - Vinh danh tức thì.</p>
         </div>
-        <button class="ai-btn" style="padding:8px 16px; font-size:12px; background:var(--surface);" onclick="checkMasterAuth()">ADMIN 🔐</button>
+        <button class="pill" style="padding:4px 10px; background:var(--surface);" onclick="checkMasterAuth()">ADMIN 🔐</button>
       </div>
 
       <div class="card glass">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
           <div>
-            <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase;">Quản lý (SM)</label>
-            <input type="text" id="diary-sm" class="ai-input" style="margin-top:4px; background:rgba(255,255,255,0.05);" readonly>
+            <label style="font-size:10px; font-weight:800; color:var(--text-dim);">QUẢN LÝ (SM)</label>
+            <input type="text" id="diary-sm" class="ai-input" style="background:rgba(255,255,255,0.05);" readonly>
           </div>
           <div>
-            <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase;">Tên RM/CTV</label>
-            <input type="text" id="diary-rm" class="ai-input" style="margin-top:4px; background:rgba(255,255,255,0.05);" readonly>
+            <label style="font-size:10px; font-weight:800; color:var(--text-dim);">RM / CTV</label>
+            <input type="text" id="diary-rm" class="ai-input" style="background:rgba(255,255,255,0.05);" readonly>
           </div>
         </div>
 
-        <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase;">Tên Khách Hàng</label>
-        <input type="text" id="diary-customer" class="ai-input" style="margin-top:4px; margin-bottom:16px;" placeholder="Ví dụ: Nguyễn Văn A">
+        <label style="font-size:10px; font-weight:800; color:var(--text-dim);">TÊN KHÁCH HÀNG</label>
+        <input type="text" id="diary-customer" class="ai-input" style="margin:4px 0 12px;" placeholder="Ví dụ: Nguyễn Văn A">
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
           <div>
-            <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase;">Phân loại</label>
-            <select id="diary-type" class="ai-input" style="margin-top:4px;">
+            <label style="font-size:10px; font-weight:800; color:var(--text-dim);">PHÂN LOẠI</label>
+            <select id="diary-type" class="ai-input">
               <option value="KHHH > 3 tỷ">KHHH > 3 tỷ</option>
               <option value="KHHH < 3 tỷ">KHHH < 3 tỷ</option>
               <option value="C2C">C2C</option>
@@ -208,8 +367,8 @@
             </select>
           </div>
           <div>
-            <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase;">Sản phẩm</label>
-            <select id="diary-product" class="ai-input" style="margin-top:4px;" onchange="toggleLendingFields(this.value)">
+            <label style="font-size:10px; font-weight:800; color:var(--text-dim);">SẢN PHẨM</label>
+            <select id="diary-product" class="ai-input" onchange="toggleLendingFields(this.value)">
               <option value="LENDING">LENDING</option>
               <option value="DEPO">DEPO</option>
               <option value="BANCA">BANCA</option>
@@ -218,15 +377,15 @@
           </div>
         </div>
 
-        <div id="lending-fields" style="display:none; margin-bottom:16px; padding:16px; border:1px solid rgba(14, 165, 233, 0.4); background:rgba(14, 165, 233, 0.05); border-radius:16px;">
+        <div id="lending-fields" style="display:none; padding:16px; border:1px solid rgba(14, 165, 233, 0.4); background:rgba(14, 165, 233, 0.05); border-radius:16px; margin-bottom:12px;">
            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
               <div>
-                <label style="font-size:11px; font-weight:700; color:var(--neon-blue);">TIỀN VAY (TỶ)</label>
-                <input type="number" id="diary-amount" class="ai-input" style="margin-top:4px;" placeholder="VD: 5.5">
+                <label style="font-size:10px; font-weight:800; color:var(--neon-blue);">TIỀN VAY (TỶ)</label>
+                <input type="number" id="diary-amount" class="ai-input" placeholder="VD: 5.5">
               </div>
               <div>
-                <label style="font-size:11px; font-weight:700; color:var(--neon-blue);">TIẾN ĐỘ</label>
-                <select id="diary-progress" class="ai-input" style="margin-top:4px;">
+                <label style="font-size:10px; font-weight:800; color:var(--neon-blue);">TIẾN ĐỘ</label>
+                <select id="diary-progress" class="ai-input">
                    <option value="Khách có nhu cầu">📝 Nhu cầu</option>
                    <option value="Đã gửi định giá">🔍 Định giá</option>
                    <option value="Trình phê duyệt">📤 Trình duyệt</option>
@@ -236,40 +395,74 @@
            </div>
         </div>
 
-        <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase;">Hình thức</label>
-        <select id="diary-method" class="ai-input" style="margin:4px 0 16px;">
+        <label style="font-size:10px; font-weight:800; color:var(--text-dim);">HÌNH THỨC LH</label>
+        <select id="diary-method" class="ai-input" style="margin:4px 0 12px;">
           <option value="GỌI">📞 Gọi điện thoại</option>
           <option value="GẶP">🤝 Gặp trực tiếp</option>
-          <option value="ZALO">💬 Qua Zalo/SMS</option>
+          <option value="ZALO">💬 Zalo / SMS</option>
         </select>
 
-        <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase;">Ghi chú</label>
-        <textarea id="diary-result" class="ai-input" style="margin-top:4px; min-height:80px;" placeholder="Tình trạng khách hàng..."></textarea>
+        <label style="font-size:10px; font-weight:800; color:var(--text-dim);">KẾT QUẢ / GHI CHÚ</label>
+        <textarea id="diary-result" class="ai-input" style="min-height:80px; margin-top:4px;" placeholder="Tình trạng khách hàng..."></textarea>
 
-        <button class="ai-btn" id="btn-submit-diary" style="width:100%; margin-top:20px;" onclick="submitDiary()">XÁC NHẬN & GỬI 🚀</button>
+        <button class="ai-btn" id="btn-submit-diary" style="width:100%; margin-top:16px;" onclick="submitDiary()">BẮT ĐẦU ĐỒNG BỘ 🚀</button>
+      </div>
+
+      <div id="ai-feedback-box" class="card glass" style="display:none; border-color:var(--neon-green); background:rgba(34, 197, 94, 0.05);">
+         <div style="font-size:11px; font-weight:800; color:var(--neon-green); margin-bottom:6px;">✨ AI COACHING:</div>
+         <p id="ai-feedback-text" style="font-size:13px; line-height:1.5;"></p>
+         <button class="pill" style="margin-top:10px; width:100%;" onclick="useAiFeedback()">💬 Dùng kịch bản này</button>
       </div>
     </div>
 
-    <!-- AI TOOLS PAGE -->
+    <!-- ⚡ AI CENTER PAGE -->
     <div class="page" id="page-tools">
       <div class="page-header">
-        <h2 class="page-title">⚡ AI Coaching</h2>
-        <p class="page-desc">Gemini trợ lý ảo của bạn.</p>
+        <h2 class="page-title">⚡ AI Center (Gemini)</h2>
+        <p class="page-desc">Chuyên gia tư vấn RM 24/7.</p>
       </div>
       
-      <div id="chat-container" style="height:400px; overflow-y:auto; margin-bottom:16px; padding:12px; background:rgba(0,0,0,0.2); border-radius:16px; border:1px solid var(--border);">
-         <!-- Chat messages -->
+      <div id="chat-container" class="card glass" style="height:450px; overflow-y:auto; margin-bottom:16px;">
+         <div style="font-size:13px; color:var(--text-dim); line-height:1.6;">
+            Xin chào! Em là Trợ lý AI VIB đây 🤖. Anh/chị cần em hỗ trợ:<br><br>
+            • Xử lý khách chê lãi cao?<br>
+            • Viết bài Zalo theo PAS/AIDA?<br>
+            • Kịch bản gọi khách mua nhà?<br><br>
+            Hãy chat với em ở dưới nhé!
+         </div>
       </div>
       
       <div style="display:flex; gap:8px;">
-        <input type="text" id="ai-chat-input" class="ai-input" placeholder="Nhập câu muốn hỏi AI...">
-        <button class="ai-btn" onclick="sendGemini()" style="padding:0 20px;">🔥</button>
+        <input type="text" id="ai-chat-input" class="ai-input" placeholder="Hỏi AI bất kỳ điều gì...">
+        <button class="ai-btn" style="padding:0 20px;" onclick="sendGemini()">🔥</button>
       </div>
     </div>
-    
+
+    <!-- 📅 ROADMAP 90 DAYS -->
+    <div class="page" id="page-roadmap">
+      <div class="page-header">
+        <h2 class="page-title" style="color:var(--neon-orange);">📅 Roadmap Marketing 90 Ngày</h2>
+        <p class="page-desc">Hành trình xây dựng thương hiệu RM triệu đô.</p>
+      </div>
+
+      <div class="rm-month-card" id="rm-m1">
+        <div class="rm-month-header" onclick="toggleAcc(this)">
+          <div style="color:#fff; font-weight:800; font-size:15px;">Tháng 1: Tạo Trust (Định vị)</div>
+          <p style="font-size:11px; color:rgba(255,255,255,0.7);">Giáo dục tư duy & Chuyên môn</p>
+        </div>
+        <div class="rm-month-body">
+           <button class="rm-week-btn" onclick="showPage('tools');prefillChat('Viết kịch bản FB: Concept HOW-TO. Chủ đề: Cách tự tính room vay mua nhà.')">Tuần 1: Concept HOW-TO 💡</button>
+           <button class="rm-week-btn" onclick="showPage('tools');prefillChat('Viết kịch bản: Concept POV. Chủ đề: Lầm tưởng về lãi suất thả nổi bank.')">Tuần 2: Concept POV (Góc nhìn) 💡</button>
+           <button class="rm-week-btn" onclick="showPage('tools');prefillChat('Viết kịch bản: Concept Checklist. Chủ đề: 5 giấy tờ SME cần có.')">Tuần 3: Concept CHECKLIST 💡</button>
+           <button class="rm-week-btn" onclick="showPage('tools');prefillChat('Viết kịch bản: Concept Tips. Chủ đề: Mẹo vay đủ vốn định giá cao.')">Tuần 4: Concept TIPS 💡</button>
+        </div>
+      </div>
+      <!-- More months follow in JS/UI ... -->
+    </div>
+
   </main>
 
-  <!-- BOTTOM NAV (Floating Type) -->
+  <!-- BOTTOM NAV (Floating Menu) -->
   <nav class="bottom-nav">
     <button class="nav-btn active" data-page="home" onclick="showPage('home')">
       <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
@@ -287,10 +480,9 @@
 
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast">Đã copy! ✅</div>
 
-<!-- SCRIPTS -->
+<!-- V=2 TO FORCE REFRESH -->
 <script src="app.js?v=2"></script>
 </body>
 </html>
