@@ -392,7 +392,7 @@
           </div>
           <div>
             <label style="font-size:11px;color:var(--dim)">Sản phẩm</label>
-            <select id="diary-product" class="ai-input" style="min-height:40px;margin-top:4px">
+            <select id="diary-product" class="ai-input" style="min-height:40px;margin-top:4px" onchange="toggleLendingFields(this.value)">
               <option value="LENDING">LENDING</option>
               <option value="DEPO">DEPO</option>
               <option value="BANCAF">BANCA</option>
@@ -400,6 +400,28 @@
               <option value="NTB">NTB</option>
               <option value="LOA">LOA</option>
             </select>
+          </div>
+        </div>
+
+        <!-- LENDING SPECIFIC FIELDS (Hidden by default) -->
+        <div id="lending-fields" style="display:none; padding:12px; background:rgba(74,158,255,0.05); border:1px dashed var(--blue); border-radius:10px; margin-bottom:12px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div>
+              <label style="font-size:11px;color:var(--blue);font-weight:bold">Tiền vay (Tỷ đồng)</label>
+              <input type="number" id="diary-amount" class="ai-input" style="min-height:40px;margin-top:4px" placeholder="VD: 2.5" step="0.1">
+            </div>
+            <div>
+              <label style="font-size:11px;color:var(--blue);font-weight:bold">Tiến độ hồ sơ</label>
+              <select id="diary-progress" class="ai-input" style="min-height:40px;margin-top:4px">
+                <option value="Khách có nhu cầu">📝 Khách có nhu cầu</option>
+                <option value="Đã chốt nhu cầu">✅ Đã chốt nhu cầu</option>
+                <option value="Đã gửi định giá">🔍 Đã gửi định giá</option>
+                <option value="Đã có chứng thư">📜 Đã có chứng thư</option>
+                <option value="Trình phê duyệt">📤 Trình phê duyệt</option>
+                <option value="Đã phê duyệt">🎊 Đã phê duyệt</option>
+                <option value="Chờ giải ngân">💰 Chờ giải ngân</option>
+              </select>
+            </div>
           </div>
         </div>
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VIB Sales Master Dashboard</title>
+    <title>VIB Sales Command Center</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -15,121 +15,212 @@
             --text: #f1f5f9;
             --text-dim: #94a3b8;
             --accent-green: #10b981;
-            --border: rgba(255, 255, 255, 0.1);
+            --accent-red: #ef4444;
+            --border: rgba(255, 255, 255, 0.08);
         }
 
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg);
             color: var(--text);
-            margin: 0;
-            padding: 20px;
+            padding: 16px;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1400px; margin: 0 auto; }
 
+        /* HEADER */
         .header {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 16px;
             margin-bottom: 24px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border);
+            padding: 20px;
+            background: var(--card);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+        @media (min-width: 768px) {
+            .header { flex-direction: row; justify-content: space-between; align-items: center; }
         }
 
+        .title-area h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+        .title-area p { color: var(--text-dim); font-size: 14px; margin-top: 4px; }
+
+        /* KPI CARDS */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        @media (min-width: 1024px) {
+            .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
         }
 
         .stat-card {
             background: var(--card);
             padding: 20px;
-            border-radius: 12px;
+            border-radius: 20px;
             border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
+        .stat-label { font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+        .stat-val { font-size: 32px; font-weight: 800; color: var(--vib-orange); margin: 8px 0; }
+        .stat-sub { font-size: 12px; color: var(--text-dim); }
 
-        .stat-val { font-size: 28px; font-weight: 800; color: var(--vib-orange); margin: 8px 0; }
-        .stat-label { font-size: 13px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
-
+        /* MAIN LAYOUT */
         .main-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 1fr;
             gap: 20px;
+        }
+        @media (min-width: 1200px) {
+            .main-grid { grid-template-columns: 2fr 1fr; }
         }
 
         .card {
             background: var(--card);
-            border-radius: 16px;
-            padding: 20px;
+            border-radius: 24px;
+            padding: 24px;
             border: 1px solid var(--border);
+            height: 100%;
+        }
+        .card-header { font-weight: 800; font-size: 18px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* TABLE STYLES */
+        .scroll-area { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th { text-align: left; color: var(--text-dim); padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 600; }
+        td { padding: 16px; border-bottom: 1px solid var(--border); }
+        
+        /* Badges & Tags */
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .badge-blue { background: rgba(0, 79, 152, 0.2); color: #60a5fa; }
+        .badge-orange { background: rgba(243, 112, 33, 0.2); color: var(--vib-orange); }
+        .badge-green { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
+
+        /* FILTERS */
+        .filter-area { display: flex; gap: 12px; flex-wrap: wrap; }
+        select {
+            background: #1f2937;
+            color: white;
+            border: 1px solid var(--border);
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
         }
 
-        .card-header { font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; }
+        .sync-btn {
+            background: var(--vib-blue);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sync-btn:active { transform: scale(0.95); }
 
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th { text-align: left; color: var(--text-dim); padding: 12px 8px; border-bottom: 1px solid var(--border); }
-        td { padding: 12px 8px; border-bottom: 1px solid var(--border); }
-
-        .filter-area { margin-bottom: 20px; display: flex; gap: 10px; }
-        select { background: #1f2937; color: white; border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; }
-
-        .tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; padding: 4px 8px; }
-        .tag-vip { background: rgba(243,112,33,0.2); color: var(--vib-orange); }
-        .tag-new { background: rgba(16,185,129,0.2); color: var(--accent-green); }
-
-        .sync-btn { background: var(--vib-blue); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        /* Aging indicator */
+        .aging-hot { color: var(--accent-red); font-weight: bold; }
         
-        .sm-badge { font-size: 11px; background: rgba(99,102,241,0.1); color: #818cf8; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
+        .loading { text-align: center; padding: 40px; color: var(--text-dim); }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div>
-                <h1 style="margin:0; font-size:24px;">🏢 VIB Sales Master Dashboard</h1>
-                <p style="margin:5px 0 0; color:var(--text-dim);">Trung tâm chỉ huy phòng Kinh doanh - Leader Đức Tài</p>
+            <div class="title-area">
+                <h1>🏢 VIB Sales Command Center</h1>
+                <p>Quản trị Pipeline & Hiệu suất - Leader Đức Tài</p>
             </div>
-            <button class="sync-btn" onclick="fetchData()">🔄 Làm mới dữ liệu</button>
-        </div>
-
-        <div class="filter-area">
-            <select id="filter-sm" onchange="renderAll()">
-                <option value="All">Tất cả Quản lý (SM)</option>
-                <option value="Hoa Lý">Team Hoa Lý</option>
-                <option value="Văn Thạch">Team Văn Thạch</option>
-                <option value="Đức Tài">Team Đức Tài</option>
-            </select>
+            <div class="filter-area">
+                <select id="filter-sm" onchange="renderAll()">
+                    <option value="All">Tất cả Team SM</option>
+                    <option value="Hoa Lý">Team Hoa Lý</option>
+                    <option value="Văn Thạch">Team Văn Thạch</option>
+                    <option value="Đức Tài">Team Đức Tài</option>
+                </select>
+                <button class="sync-btn" onclick="fetchData()">🔄 Làm mới</button>
+            </div>
         </div>
 
         <div class="stats-grid">
-            <div class="stat-card"><div class="stat-label">Tổng tương tác</div><div class="stat-val" id="stat-total">-</div></div>
-            <div class="stat-card"><div class="stat-label">Khách hàng mới</div><div class="stat-val" id="stat-new">-</div></div>
-            <div class="stat-card"><div class="stat-label">Deal vay lớn (>3 tỷ)</div><div class="stat-val" id="stat-vip" style="color:#f87171">-</div></div>
-            <div class="stat-card"><div class="stat-label">Lượt giải ngân</div><div class="stat-val" id="stat-done" style="color:var(--accent-green)">-</div></div>
+            <div class="stat-card">
+                <div class="stat-label">Tổng Pipeline</div>
+                <div class="stat-val" id="stat-amount">0</div>
+                <div class="stat-sub">Tỷ đồng dự kiến</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Chờ giải ngân</div>
+                <div class="stat-val" id="stat-done" style="color:var(--accent-green)">0</div>
+                <div class="stat-sub">Hồ sơ đã phê duyệt</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Tổng tương tác</div>
+                <div class="stat-val" id="stat-total">0</div>
+                <div class="stat-sub">Trong 30 ngày qua</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">KHHH > 3 tỷ</div>
+                <div class="stat-val" id="stat-vip" style="color:#f87171">0</div>
+                <div class="stat-sub">Tiện ích ưu tiên</div>
+            </div>
         </div>
 
         <div class="main-grid">
             <div class="card">
-                <div class="card-header">🏆 Bảng Xếp Hạng RM (Top Hoạt Động)</div>
-                <table id="rm-rank-table">
-                    <thead><tr><th>Hạng</th><th>Họ Tên RM</th><th>Team</th><th>Lượt NK</th><th>Hiệu quả</th></tr></thead>
-                    <tbody></tbody>
-                </table>
+                <div class="card-header">
+                    <span>🏆 Vua Giải Ngân (Xếp hạng theo Tiền tỷ)</span>
+                    <span style="font-size:12px; color:var(--text-dim)">Cập nhật Real-time</span>
+                </div>
+                <div class="scroll-area">
+                    <table id="rm-rank-table">
+                        <thead>
+                            <tr>
+                                <th>HẠNG</th>
+                                <th>HỌ TÊN RM</th>
+                                <th>TEAM</th>
+                                <th>PIPELINE (TỶ)</th>
+                                <th>TIẾN ĐỘ</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
             <div class="card">
-                <div class="card-header">📊 Cơ Cấu Sản Phẩm</div>
-                <canvas id="productChart" height="300"></canvas>
+                <div class="card-header">📊 Cơ Cấu Hồ sơ Vay</div>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="funnelChart"></canvas>
+                </div>
             </div>
         </div>
 
         <div class="card" style="margin-top:20px;">
-            <div class="card-header">🕒 Nhật Ký Gặp Gỡ & Tư Vấn Gần Đây</div>
-            <div style="max-height: 400px; overflow-y: auto;">
+            <div class="card-header">🕒 Pipeline Chi Tiết & Nhật Ký Gần Đây</div>
+            <div class="scroll-area" style="max-height: 500px;">
                 <table id="log-table">
-                    <thead><tr><th>Giờ</th><th>RM</th><th>Khách hàng</th><th>Phân loại</th><th>Kết quả / Phản hồi</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>THỜI GIAN</th>
+                            <th>RM</th>
+                            <th>KHÁCH HÀNG</th>
+                            <th>SỐ TIỀN</th>
+                            <th>TIẾN ĐỘ / KẾT QUẢ</th>
+                        </tr>
+                    </thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -137,10 +228,9 @@
     </div>
 
     <script>
-        // WEBHOOK URL - Sẽ được anh Tài cập nhật sau khi triển khai Apps Script
-        const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzBVFzzmg8yDlzzOSHc4KIn4j-HY6mQmBjhqCAy8rZiqjNr97T1oBUOZpXUY-CKB3hM/exec";
+        const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx6ZmUJ2z4gsxvaK3BlaUl9FXZVCm3_oDUwiFr4-edNe-BrecPmmG3VwQXtPqEBnTGk/exec";
         let rawData = [];
-        let productChart;
+        let funnelChart;
 
         async function fetchData() {
             try {
@@ -148,67 +238,115 @@
                 if (!res.ok) return;
                 rawData = await res.json();
                 renderAll();
-            } catch (e) { console.warn("Lỗi đồng bộ hoặc chưa có URL Google Sheets"); }
+            } catch (e) { console.warn("Lỗi kết nối Google Sheets"); }
         }
 
         function renderAll() {
             const smFilter = document.getElementById('filter-sm').value;
             const data = smFilter === 'All' ? rawData : rawData.filter(d => d['SM (Quản lý)'] === smFilter);
 
-            // Update Stats
-            document.getElementById('stat-total').textContent = data.length;
-            document.getElementById('stat-new').textContent = data.filter(d => d['Phân loại'] === 'KH Mới').length;
-            document.getElementById('stat-vip').textContent = data.filter(d => d['Phân loại'] === 'KHHH > 3 tỷ').length;
-            document.getElementById('stat-done').textContent = data.filter(d => d['Kết quả / Ghi chú'] && d['Kết quả / Ghi chú'].toLowerCase().includes('giải ngân')).length;
+            // 1. Update Stats
+            let totalAmount = 0;
+            let doneDeals = 0;
+            data.forEach(d => {
+                if(d['Số tiền vay']) totalAmount += parseFloat(d['Số tiền vay']) || 0;
+                if(d['Tiến độ hồ sơ'] === 'Chờ giải ngân' || (d['Kết quả / Ghi chú'] && d['Kết quả / Ghi chú'].includes('giải ngân'))) doneDeals++;
+            });
 
-            // Render Ranking
+            document.getElementById('stat-amount').textContent = totalAmount.toFixed(1) + 'T';
+            document.getElementById('stat-done').textContent = doneDeals;
+            document.getElementById('stat-total').textContent = data.length;
+            document.getElementById('stat-vip').textContent = data.filter(d => d['Phân loại'] === 'KHHH > 3 tỷ').length;
+
+            // 2. Render Vua Giải Ngân (Rank by Amount)
             const rmMap = {};
             data.forEach(d => {
                 const name = d['Tên RM'];
-                if (!rmMap[name]) rmMap[name] = { name, sm: d['SM (Quản lý)'], count: 0 };
+                if (!rmMap[name]) rmMap[name] = { name, sm: d['SM (Quản lý)'], amount: 0, count: 0 };
+                rmMap[name].amount += parseFloat(d['Số tiền vay']) || 0;
                 rmMap[name].count++;
             });
-            const rank = Object.values(rmMap).sort((a,b) => b.count - a.count);
+            const rank = Object.values(rmMap).sort((a,b) => b.amount - a.amount);
             const rankBody = document.querySelector('#rm-rank-table tbody');
-            rankBody.innerHTML = rank.map((r, i) => `<tr><td>${i+1}</td><td><b>${r.name}</b></td><td><span class="sm-badge">${r.sm}</span></td><td>${r.count}</td><td><div style="width:50px; height:8px; background:#1f2937; border-radius:4px;"><div style="width:${Math.min(r.count*5, 100)}%; height:100%; background:var(--vib-orange); border-radius:4px;"></div></div></td></tr>`).join('');
+            rankBody.innerHTML = rank.map((r, i) => `
+                <tr>
+                    <td>${i+1}</td>
+                    <td><b>${r.name}</b></td>
+                    <td><span class="badge badge-blue">${r.sm}</span></td>
+                    <td style="color:var(--vib-orange); font-weight:800">${r.amount.toFixed(1)} Tỷ</td>
+                    <td>
+                        <div style="width:100px; height:6px; background:#1f2937; border-radius:4px;">
+                            <div style="width:${Math.min(r.amount * 5, 100)}%; height:100%; background:var(--vib-orange); border-radius:4px;"></div>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
 
-            // Render Logs
+            // 3. Render Detail Logs
             const logBody = document.querySelector('#log-table tbody');
-            const recent = [...data].reverse().slice(0, 30); // Show last 30 entries
-            logBody.innerHTML = recent.map(r => {
-                const isVip = r['Phân loại'].includes('> 3');
-                return `<tr><td style="color:var(--text-dim)">${r['Thời gian'].split(' ')[1]}</td><td>${r['Tên RM']}</td><td>${r['Tên Khách Hàng']}</td><td><span class="tag ${isVip ? 'tag-vip' : 'tag-new'}">${r['Phân loại']}</span></td><td style="font-size:12px">${r['Kết quả / Ghi chú']}</td></tr>`;
+            const sorted = [...data].reverse();
+            logBody.innerHTML = sorted.map(r => {
+                const amount = r['Số tiền vay'] ? `<b style="color:var(--vib-orange)">${r['Số tiền vay']}T</b>` : '-';
+                const progress = r['Tiến độ hồ sơ'] || r['Kết quả / Ghi chú'];
+                const time = r['Thời gian'] ? r['Thời gian'].split(' ')[1] : '';
+                
+                return `
+                    <tr>
+                        <td style="color:var(--text-dim); font-size:12px">${time}</td>
+                        <td style="font-weight:600">${r['Tên RM']}</td>
+                        <td>${r['Tên Khách Hàng']}</td>
+                        <td>${amount}</td>
+                        <td><span class="badge ${progress.includes('giải ngân') ? 'badge-green' : 'badge-orange'}">${progress}</span></td>
+                    </tr>
+                `;
             }).join('');
 
-            // Render Chart
-            const prodData = {};
-            data.forEach(d => { 
-                const p = d['Sản phẩm'] || 'Khác';
-                prodData[p] = (prodData[p] || 0) + 1; 
+            // 4. Render Funnel Chart
+            const pipelineStages = {
+                "Khách có nhu cầu": 0,
+                "Đã chốt nhu cầu": 0,
+                "Đã gửi định giá": 0,
+                "Đã có chứng thư": 0,
+                "Trình phê duyệt": 0,
+                "Đã phê duyệt": 0,
+                "Chờ giải ngân": 0
+            };
+            data.forEach(d => {
+                if (pipelineStages[d['Tiến độ hồ sơ']] !== undefined) {
+                    pipelineStages[d['Tiến độ hồ sơ']]++;
+                }
             });
-            
-            if (productChart) productChart.destroy();
-            const ctx = document.getElementById('productChart').getContext('2d');
-            productChart = new Chart(ctx, {
-                type: 'doughnut',
+
+            if (funnelChart) funnelChart.destroy();
+            const ctx = document.getElementById('funnelChart').getContext('2d');
+            funnelChart = new Chart(ctx, {
+                type: 'bar',
                 data: {
-                    labels: Object.keys(prodData),
+                    labels: Object.keys(pipelineStages).map(s => s.split(' ').slice(1).join(' ')), // Shorten labels
                     datasets: [{
-                        data: Object.values(prodData),
-                        backgroundColor: ['#004F98', '#F37021', '#10b981', '#6366f1', '#f59e0b', '#f43f5e']
+                        label: 'Số lượng hồ sơ',
+                        data: Object.values(pipelineStages),
+                        backgroundColor: [
+                            '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#10b981'
+                        ],
+                        borderRadius: 8
                     }]
                 },
-                options: { 
+                options: {
+                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 } } } },
-                    cutout: '70%'
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: { ticks: { color: '#94a3b8', font: { size: 11, weight: 'bold' } } }
+                    }
                 }
             });
         }
 
         fetchData();
-        setInterval(fetchData, 20000); // 20s refresh
+        setInterval(fetchData, 30000);
     </script>
 </body>
 </html>

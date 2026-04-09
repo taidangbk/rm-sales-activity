@@ -293,6 +293,16 @@ function updateRMList(sm) {
   }
 }
 
+function toggleLendingFields(product) {
+  const fields = document.getElementById('lending-fields');
+  if (product === 'LENDING') {
+    fields.style.display = 'block';
+    fields.style.animation = 'fadeUp 0.3s ease';
+  } else {
+    fields.style.display = 'none';
+  }
+}
+
 function submitDiary() {
   const sm = document.getElementById('diary-sm').value;
   const rm = document.getElementById('diary-rm').value;
@@ -301,6 +311,10 @@ function submitDiary() {
   const product = document.getElementById('diary-product').value;
   const method = document.getElementById('diary-method').value;
   const result = document.getElementById('diary-result').value.trim();
+  
+  // Lending specific fields
+  const amount = document.getElementById('diary-amount').value;
+  const progress = document.getElementById('diary-progress').value;
   
   if (!sm || !rm || !customer || !result) {
     return showToast("⚠️ Vui lòng nhập đủ các trường!");
@@ -318,10 +332,12 @@ function submitDiary() {
     type: type,
     product: product,
     method: method,
-    result: result
+    result: result,
+    amount: product === 'LENDING' ? amount : '',
+    progress: product === 'LENDING' ? progress : ''
   };
   
-  const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzBVFzzmg8yDlzzOSHc4KIn4j-HY6mQmBjhqCAy8rZiqjNr97T1oBUOZpXUY-CKB3hM/exec";
+  const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx6ZmUJ2z4gsxvaK3BlaUl9FXZVCm3_oDUwiFr4-edNe-BrecPmmG3VwQXtPqEBnTGk/exec";
   
   fetch(WEBHOOK_URL, {
     method: 'POST', mode: 'no-cors',
@@ -375,11 +391,11 @@ function useAiFeedback() {
 }
 
 function checkMasterAuth() {
-  const pin = prompt("Nhập mã MASTER PIN để vào Dashboard:");
+  const pin = prompt("🔐 NHẬP MÃ MASTER PIN ĐỂ VÀO DASHBOARD:");
   if (pin === "6789") {
     window.open('dashboard.html', '_blank');
   } else {
-    alert("Sai mật mã! Chỉ dành cho Leader.");
+    alert("❌ Sai mật mã! Chỉ dành cho Leader Đức Tài.");
   }
 }
 
