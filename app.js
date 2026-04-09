@@ -295,6 +295,7 @@ function updateRMList(sm) {
 
 function toggleLendingFields(product) {
   const fields = document.getElementById('lending-fields');
+  if (!fields) return; // Bảo vệ nếu chưa load xong DOM
   if (product === 'LENDING') {
     fields.style.display = 'block';
     fields.style.animation = 'fadeUp 0.3s ease';
@@ -302,6 +303,12 @@ function toggleLendingFields(product) {
     fields.style.display = 'none';
   }
 }
+
+// Gọi ngay khi load trang để xử lý trường hợp mặc định là LENDING
+document.addEventListener('DOMContentLoaded', () => {
+    const defaultProduct = document.getElementById('diary-product')?.value;
+    if (defaultProduct) toggleLendingFields(defaultProduct);
+});
 
 function submitDiary() {
   const sm = document.getElementById('diary-sm').value;
@@ -337,7 +344,7 @@ function submitDiary() {
     progress: product === 'LENDING' ? progress : ''
   };
   
-  const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx6ZmUJ2z4gsxvaK3BlaUl9FXZVCm3_oDUwiFr4-edNe-BrecPmmG3VwQXtPqEBnTGk/exec";
+  const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwZZRM1Eukb6zRRDAPseKxfr-tl3TVP1koYAMHcUtCEDY3nvYSM9aZEoy5oLCcE5ZIZ/exec";
   
   fetch(WEBHOOK_URL, {
     method: 'POST', mode: 'no-cors',

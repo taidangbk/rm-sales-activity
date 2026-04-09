@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,7 +20,12 @@
             --border: rgba(255, 255, 255, 0.08);
         }
 
-        * { margin:0; padding:0; box-sizing:border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg);
@@ -29,7 +35,10 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        .container { max-width: 1400px; margin: 0 auto; }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
         /* HEADER */
         .header {
@@ -42,12 +51,26 @@
             border-radius: 20px;
             border: 1px solid var(--border);
         }
+
         @media (min-width: 768px) {
-            .header { flex-direction: row; justify-content: space-between; align-items: center; }
+            .header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
         }
 
-        .title-area h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
-        .title-area p { color: var(--text-dim); font-size: 14px; margin-top: 4px; }
+        .title-area h1 {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .title-area p {
+            color: var(--text-dim);
+            font-size: 14px;
+            margin-top: 4px;
+        }
 
         /* KPI CARDS */
         .stats-grid {
@@ -56,8 +79,12 @@
             gap: 12px;
             margin-bottom: 24px;
         }
+
         @media (min-width: 1024px) {
-            .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 20px;
+            }
         }
 
         .stat-card {
@@ -69,9 +96,26 @@
             flex-direction: column;
             justify-content: center;
         }
-        .stat-label { font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
-        .stat-val { font-size: 32px; font-weight: 800; color: var(--vib-orange); margin: 8px 0; }
-        .stat-sub { font-size: 12px; color: var(--text-dim); }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-val {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--vib-orange);
+            margin: 8px 0;
+        }
+
+        .stat-sub {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
 
         /* MAIN LAYOUT */
         .main-grid {
@@ -79,8 +123,11 @@
             grid-template-columns: 1fr;
             gap: 20px;
         }
+
         @media (min-width: 1200px) {
-            .main-grid { grid-template-columns: 2fr 1fr; }
+            .main-grid {
+                grid-template-columns: 2fr 1fr;
+            }
         }
 
         .card {
@@ -90,22 +137,71 @@
             border: 1px solid var(--border);
             height: 100%;
         }
-        .card-header { font-weight: 800; font-size: 18px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+
+        .card-header {
+            font-weight: 800;
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
         /* TABLE STYLES */
-        .scroll-area { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th { text-align: left; color: var(--text-dim); padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 600; }
-        td { padding: 16px; border-bottom: 1px solid var(--border); }
-        
+        .scroll-area {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            text-align: left;
+            color: var(--text-dim);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
         /* Badges & Tags */
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-        .badge-blue { background: rgba(0, 79, 152, 0.2); color: #60a5fa; }
-        .badge-orange { background: rgba(243, 112, 33, 0.2); color: var(--vib-orange); }
-        .badge-green { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
+        .badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-blue {
+            background: rgba(0, 79, 152, 0.2);
+            color: #60a5fa;
+        }
+
+        .badge-orange {
+            background: rgba(243, 112, 33, 0.2);
+            color: var(--vib-orange);
+        }
+
+        .badge-green {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+        }
 
         /* FILTERS */
-        .filter-area { display: flex; gap: 12px; flex-wrap: wrap; }
+        .filter-area {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
         select {
             background: #1f2937;
             color: white;
@@ -130,14 +226,25 @@
             align-items: center;
             gap: 8px;
         }
-        .sync-btn:active { transform: scale(0.95); }
+
+        .sync-btn:active {
+            transform: scale(0.95);
+        }
 
         /* Aging indicator */
-        .aging-hot { color: var(--accent-red); font-weight: bold; }
-        
-        .loading { text-align: center; padding: 40px; color: var(--text-dim); }
+        .aging-hot {
+            color: var(--accent-red);
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-dim);
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -228,7 +335,7 @@
     </div>
 
     <script>
-        const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx6ZmUJ2z4gsxvaK3BlaUl9FXZVCm3_oDUwiFr4-edNe-BrecPmmG3VwQXtPqEBnTGk/exec";
+        const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwZZRM1Eukb6zRRDAPseKxfr-tl3TVP1koYAMHcUtCEDY3nvYSM9aZEoy5oLCcE5ZIZ/exec";
         let rawData = [];
         let funnelChart;
 
@@ -249,8 +356,8 @@
             let totalAmount = 0;
             let doneDeals = 0;
             data.forEach(d => {
-                if(d['Số tiền vay']) totalAmount += parseFloat(d['Số tiền vay']) || 0;
-                if(d['Tiến độ hồ sơ'] === 'Chờ giải ngân' || (d['Kết quả / Ghi chú'] && d['Kết quả / Ghi chú'].includes('giải ngân'))) doneDeals++;
+                if (d['Số tiền vay']) totalAmount += parseFloat(d['Số tiền vay']) || 0;
+                if (d['Tiến độ hồ sơ'] === 'Chờ giải ngân' || (d['Kết quả / Ghi chú'] && d['Kết quả / Ghi chú'].includes('giải ngân'))) doneDeals++;
             });
 
             document.getElementById('stat-amount').textContent = totalAmount.toFixed(1) + 'T';
@@ -266,11 +373,11 @@
                 rmMap[name].amount += parseFloat(d['Số tiền vay']) || 0;
                 rmMap[name].count++;
             });
-            const rank = Object.values(rmMap).sort((a,b) => b.amount - a.amount);
+            const rank = Object.values(rmMap).sort((a, b) => b.amount - a.amount);
             const rankBody = document.querySelector('#rm-rank-table tbody');
             rankBody.innerHTML = rank.map((r, i) => `
                 <tr>
-                    <td>${i+1}</td>
+                    <td>${i + 1}</td>
                     <td><b>${r.name}</b></td>
                     <td><span class="badge badge-blue">${r.sm}</span></td>
                     <td style="color:var(--vib-orange); font-weight:800">${r.amount.toFixed(1)} Tỷ</td>
@@ -289,7 +396,7 @@
                 const amount = r['Số tiền vay'] ? `<b style="color:var(--vib-orange)">${r['Số tiền vay']}T</b>` : '-';
                 const progress = r['Tiến độ hồ sơ'] || r['Kết quả / Ghi chú'];
                 const time = r['Thời gian'] ? r['Thời gian'].split(' ')[1] : '';
-                
+
                 return `
                     <tr>
                         <td style="color:var(--text-dim); font-size:12px">${time}</td>
@@ -322,7 +429,7 @@
             funnelChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(pipelineStages).map(s => s.toUpperCase()), 
+                    labels: Object.keys(pipelineStages).map(s => s.toUpperCase()),
                     datasets: [{
                         label: 'Hồ sơ',
                         data: Object.values(pipelineStages),
@@ -340,9 +447,9 @@
                     plugins: { legend: { display: false } },
                     scales: {
                         x: { display: false },
-                        y: { 
-                            ticks: { 
-                                color: '#f1f5f9', 
+                        y: {
+                            ticks: {
+                                color: '#f1f5f9',
                                 font: { size: 12, weight: '700', family: "'Inter', sans-serif" },
                                 padding: 10
                             },
@@ -358,4 +465,5 @@
         setInterval(fetchData, 30000);
     </script>
 </body>
+
 </html>
