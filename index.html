@@ -282,7 +282,7 @@
       <div class="rate-tab" id="tab-rates-calc">
         <div class="ai-card" style="padding:16px;">
           <label style="font-size:12px;color:var(--dim);font-weight:600">SỐ TIỀN VAY (VNĐ)</label>
-          <input type="number" id="calc-amount" class="ai-input" style="min-height:44px;margin-top:4px;margin-bottom:12px;font-size:16px;font-weight:700" placeholder="VD: 1000000000 (1 Tỷ)" value="1000000000">
+          <input type="text" inputmode="numeric" id="calc-amount" class="ai-input" style="min-height:44px;margin-top:4px;margin-bottom:12px;font-size:16px;font-weight:700" placeholder="VD: 1.000.000.000 (1 Tỷ)" value="1.000.000.000" oninput="formatCurrency(this)">
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
             <div>
@@ -349,29 +349,77 @@
       </div>
     </div>
 
-    <!-- REPORT PAGE -->
+    <!-- DIARY PAGE (REPLACED REPORT) -->
     <div class="page" id="page-report">
-      <h2 class="page-title">🚀 Báo Cáo Tracking</h2>
-      <p class="page-desc">Gửi báo cáo cuối ngày đồng bộ lên Google Sheets Leader</p>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h2 class="page-title" style="margin:0">🚀 Nhật Ký Bán Hàng</h2>
+        <button class="stat-btn" onclick="checkMasterAuth()" style="position:static; padding:6px 10px; font-size:11px;">Admin 🔐</button>
+      </div>
+      <p class="page-desc" style="margin-bottom:15px">Ghi nhận nhanh kết quả làm việc với khách hàng.</p>
       
-      <div class="ai-card">
-        <label style="font-size:12px;color:var(--dim)">Tên đại diện RM</label>
-        <input type="text" id="rm-name" class="ai-input" style="min-height:40px;margin-top:4px;margin-bottom:14px" placeholder="Ví dụ: Nguyễn Văn A">
-        
-        <label style="font-size:12px;color:var(--dim)">Thống kê trong ngày</label>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;margin-bottom:10px">
-          <input type="number" id="rm-call-input" class="ai-input" style="min-height:40px" placeholder="📞 Số cuộc gọi mới">
-          <input type="number" id="rm-meet-input" class="ai-input" style="min-height:40px" placeholder="🤝 Số cuộc hẹn">
+      <div class="ai-card" style="padding:16px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+          <div>
+            <label style="font-size:11px;color:var(--dim)">Chọn Quản lý (SM)</label>
+            <select id="diary-sm" class="ai-input" style="min-height:40px;margin-top:4px" onchange="updateRMList(this.value)">
+              <option value="">-- Chọn SM --</option>
+              <option value="Hoa Lý">SM Hoa Lý</option>
+              <option value="Văn Thạch">SM Văn Thạch</option>
+              <option value="Đức Tài">SM Đức Tài</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--dim)">Tên RM</label>
+            <select id="diary-rm" class="ai-input" style="min-height:40px;margin-top:4px">
+              <option value="">-- Chọn RM --</option>
+            </select>
+          </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
-          <input type="number" id="rm-file-input" class="ai-input" style="min-height:40px" placeholder="📄 Số hồ sơ chốt">
-          <input type="number" id="rm-disburse" class="ai-input" style="min-height:40px" placeholder="💰 Giải ngân (tr)">
+
+        <label style="font-size:11px;color:var(--dim)">Tên Khách Hàng</label>
+        <input type="text" id="diary-customer" class="ai-input" style="min-height:40px;margin-top:4px;margin-bottom:12px" placeholder="Ví dụ: Nguyễn Văn A">
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+          <div>
+            <label style="font-size:11px;color:var(--dim)">Phân loại</label>
+            <select id="diary-type" class="ai-input" style="min-height:40px;margin-top:4px">
+              <option value="KHHH > 3 tỷ">KHHH > 3 tỷ</option>
+              <option value="KHHH < 3 tỷ">KHHH < 3 tỷ</option>
+              <option value="C2C">C2C</option>
+              <option value="CIC HO">CIC HO</option>
+              <option value="KH Mới">KH Mới</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--dim)">Sản phẩm</label>
+            <select id="diary-product" class="ai-input" style="min-height:40px;margin-top:4px">
+              <option value="LENDING">LENDING</option>
+              <option value="DEPO">DEPO</option>
+              <option value="BANCAF">BANCA</option>
+              <option value="CARD">CARD</option>
+              <option value="NTB">NTB</option>
+              <option value="LOA">LOA</option>
+            </select>
+          </div>
         </div>
+
+        <label style="font-size:11px;color:var(--dim)">Hình thức liên hệ</label>
+        <select id="diary-method" class="ai-input" style="min-height:40px;margin-top:4px;margin-bottom:12px">
+          <option value="GỌI">📞 GỌI điện thoại</option>
+          <option value="GẶP">🤝 GẶP trực tiếp</option>
+          <option value="GỬI ZALO/SMS">💬 GỬI ZALO/SMS</option>
+        </select>
         
-        <label style="font-size:12px;color:var(--dim)">Ghi chú báo cáo / Hỗ trợ từ Leader</label>
-        <textarea id="rm-notes" class="ai-input" style="margin-top:4px" placeholder="Ví dụ: Cần sếp hỗ trợ deal chị B vì vấn đề hạn mức..."></textarea>
+        <label style="font-size:11px;color:var(--dim)">Kết quả / Ghi chú</label>
+        <textarea id="diary-result" class="ai-input" style="margin-top:4px; min-height:80px" placeholder="VD: Khách đồng ý nộp hồ sơ, hẹn sáng thứ 2..."></textarea>
         
-        <button class="ai-btn" id="btn-submit-report" onclick="submitReport()" style="background:linear-gradient(135deg,var(--green),#1a8a5a);color:#000;box-shadow:0 4px 10px rgba(62,207,142,.3);">📤 GỬI BÁO CÁO CHO LEADER</button>
+        <button class="ai-btn" id="btn-submit-diary" onclick="submitDiary()" style="background:linear-gradient(135deg,var(--vib-orange),#c4510b); color:white; box-shadow:0 4px 10px rgba(243,112,33,.3); margin-top:16px;">🚀 GỬI NHẬT KÝ (REAL-TIME)</button>
+      </div>
+
+      <div id="ai-feedback-box" class="ai-card" style="display:none; margin-top:16px; border-color:var(--green); background:rgba(62,207,142,0.05)">
+         <div style="font-size:11px; color:var(--green); font-weight:bold; margin-bottom:4px">✨ AI COACHING GỢI Ý:</div>
+         <p id="ai-feedback-text" style="font-size:12px; color:var(--text); line-height:1.5;"></p>
+         <button class="copy-btn" style="margin-top:8px" onclick="useAiFeedback()">💬 Dùng kịch bản này</button>
       </div>
     </div>
 

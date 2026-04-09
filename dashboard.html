@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIB Sales Master Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #0a0e1a;
+            --card: #111827;
+            --vib-blue: #004F98;
+            --vib-orange: #F37021;
+            --text: #f1f5f9;
+            --text-dim: #94a3b8;
+            --accent-green: #10b981;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-val { font-size: 28px; font-weight: 800; color: var(--vib-orange); margin: 8px 0; }
+        .stat-label { font-size: 13px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .card-header { font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { text-align: left; color: var(--text-dim); padding: 12px 8px; border-bottom: 1px solid var(--border); }
+        td { padding: 12px 8px; border-bottom: 1px solid var(--border); }
+
+        .filter-area { margin-bottom: 20px; display: flex; gap: 10px; }
+        select { background: #1f2937; color: white; border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; }
+
+        .tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; padding: 4px 8px; }
+        .tag-vip { background: rgba(243,112,33,0.2); color: var(--vib-orange); }
+        .tag-new { background: rgba(16,185,129,0.2); color: var(--accent-green); }
+
+        .sync-btn { background: var(--vib-blue); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        
+        .sm-badge { font-size: 11px; background: rgba(99,102,241,0.1); color: #818cf8; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1 style="margin:0; font-size:24px;">🏢 VIB Sales Master Dashboard</h1>
+                <p style="margin:5px 0 0; color:var(--text-dim);">Trung tâm chỉ huy phòng Kinh doanh - Leader Đức Tài</p>
+            </div>
+            <button class="sync-btn" onclick="fetchData()">🔄 Làm mới dữ liệu</button>
+        </div>
+
+        <div class="filter-area">
+            <select id="filter-sm" onchange="renderAll()">
+                <option value="All">Tất cả Quản lý (SM)</option>
+                <option value="Hoa Lý">Team Hoa Lý</option>
+                <option value="Văn Thạch">Team Văn Thạch</option>
+                <option value="Đức Tài">Team Đức Tài</option>
+            </select>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-label">Tổng tương tác</div><div class="stat-val" id="stat-total">-</div></div>
+            <div class="stat-card"><div class="stat-label">Khách hàng mới</div><div class="stat-val" id="stat-new">-</div></div>
+            <div class="stat-card"><div class="stat-label">Deal vay lớn (>3 tỷ)</div><div class="stat-val" id="stat-vip" style="color:#f87171">-</div></div>
+            <div class="stat-card"><div class="stat-label">Lượt giải ngân</div><div class="stat-val" id="stat-done" style="color:var(--accent-green)">-</div></div>
+        </div>
+
+        <div class="main-grid">
+            <div class="card">
+                <div class="card-header">🏆 Bảng Xếp Hạng RM (Top Hoạt Động)</div>
+                <table id="rm-rank-table">
+                    <thead><tr><th>Hạng</th><th>Họ Tên RM</th><th>Team</th><th>Lượt NK</th><th>Hiệu quả</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="card">
+                <div class="card-header">📊 Cơ Cấu Sản Phẩm</div>
+                <canvas id="productChart" height="300"></canvas>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top:20px;">
+            <div class="card-header">🕒 Nhật Ký Gặp Gỡ & Tư Vấn Gần Đây</div>
+            <div style="max-height: 400px; overflow-y: auto;">
+                <table id="log-table">
+                    <thead><tr><th>Giờ</th><th>RM</th><th>Khách hàng</th><th>Phân loại</th><th>Kết quả / Phản hồi</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // WEBHOOK URL - Sẽ được anh Tài cập nhật sau khi triển khai Apps Script
+        const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzBVFzzmg8yDlzzOSHc4KIn4j-HY6mQmBjhqCAy8rZiqjNr97T1oBUOZpXUY-CKB3hM/exec";
+        let rawData = [];
+        let productChart;
+
+        async function fetchData() {
+            try {
+                const res = await fetch(WEBHOOK_URL);
+                if (!res.ok) return;
+                rawData = await res.json();
+                renderAll();
+            } catch (e) { console.warn("Lỗi đồng bộ hoặc chưa có URL Google Sheets"); }
+        }
+
+        function renderAll() {
+            const smFilter = document.getElementById('filter-sm').value;
+            const data = smFilter === 'All' ? rawData : rawData.filter(d => d['SM (Quản lý)'] === smFilter);
+
+            // Update Stats
+            document.getElementById('stat-total').textContent = data.length;
+            document.getElementById('stat-new').textContent = data.filter(d => d['Phân loại'] === 'KH Mới').length;
+            document.getElementById('stat-vip').textContent = data.filter(d => d['Phân loại'] === 'KHHH > 3 tỷ').length;
+            document.getElementById('stat-done').textContent = data.filter(d => d['Kết quả / Ghi chú'] && d['Kết quả / Ghi chú'].toLowerCase().includes('giải ngân')).length;
+
+            // Render Ranking
+            const rmMap = {};
+            data.forEach(d => {
+                const name = d['Tên RM'];
+                if (!rmMap[name]) rmMap[name] = { name, sm: d['SM (Quản lý)'], count: 0 };
+                rmMap[name].count++;
+            });
+            const rank = Object.values(rmMap).sort((a,b) => b.count - a.count);
+            const rankBody = document.querySelector('#rm-rank-table tbody');
+            rankBody.innerHTML = rank.map((r, i) => `<tr><td>${i+1}</td><td><b>${r.name}</b></td><td><span class="sm-badge">${r.sm}</span></td><td>${r.count}</td><td><div style="width:50px; height:8px; background:#1f2937; border-radius:4px;"><div style="width:${Math.min(r.count*5, 100)}%; height:100%; background:var(--vib-orange); border-radius:4px;"></div></div></td></tr>`).join('');
+
+            // Render Logs
+            const logBody = document.querySelector('#log-table tbody');
+            const recent = [...data].reverse().slice(0, 30); // Show last 30 entries
+            logBody.innerHTML = recent.map(r => {
+                const isVip = r['Phân loại'].includes('> 3');
+                return `<tr><td style="color:var(--text-dim)">${r['Thời gian'].split(' ')[1]}</td><td>${r['Tên RM']}</td><td>${r['Tên Khách Hàng']}</td><td><span class="tag ${isVip ? 'tag-vip' : 'tag-new'}">${r['Phân loại']}</span></td><td style="font-size:12px">${r['Kết quả / Ghi chú']}</td></tr>`;
+            }).join('');
+
+            // Render Chart
+            const prodData = {};
+            data.forEach(d => { 
+                const p = d['Sản phẩm'] || 'Khác';
+                prodData[p] = (prodData[p] || 0) + 1; 
+            });
+            
+            if (productChart) productChart.destroy();
+            const ctx = document.getElementById('productChart').getContext('2d');
+            productChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(prodData),
+                    datasets: [{
+                        data: Object.values(prodData),
+                        backgroundColor: ['#004F98', '#F37021', '#10b981', '#6366f1', '#f59e0b', '#f43f5e']
+                    }]
+                },
+                options: { 
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 } } } },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        fetchData();
+        setInterval(fetchData, 20000); // 20s refresh
+    </script>
+</body>
+</html>

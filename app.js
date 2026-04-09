@@ -273,55 +273,114 @@ setTimeout(() => {
   if(document.getElementById('rm-name')) document.getElementById('rm-name').value = savedName;
 }, 500);
 
-function submitReport() {
-  const name = document.getElementById('rm-name').value.trim();
-  const calls = document.getElementById('rm-call-input').value;
-  const meets = document.getElementById('rm-meet-input').value;
-  const files = document.getElementById('rm-file-input').value;
-  const disburse = document.getElementById('rm-disburse').value;
-  const notes = document.getElementById('rm-notes').value;
+// ========== DIARY & TEAM MANAGEMENT ==========
+const TEAM_DATA = {
+  "Hoa Lý": ["Mỹ Duyên", "Trúc Linh", "Minh Nhật", "Hoàng Huy"],
+  "Văn Thạch": ["Quế Đô", "Văn Trí", "Hồng Nhung", "Thùy Dung"],
+  "Đức Tài": ["Mỹ Thẩm", "Chiu Sa", "Tuấn Thanh", "Tuấn Kiệt", "Kim Phượng", "Trang Đài"]
+};
+
+function updateRMList(sm) {
+  const rmSelect = document.getElementById('diary-rm');
+  rmSelect.innerHTML = '<option value="">-- Chọn RM --</option>';
+  if (TEAM_DATA[sm]) {
+    TEAM_DATA[sm].forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      rmSelect.appendChild(opt);
+    });
+  }
+}
+
+function submitDiary() {
+  const sm = document.getElementById('diary-sm').value;
+  const rm = document.getElementById('diary-rm').value;
+  const customer = document.getElementById('diary-customer').value.trim();
+  const type = document.getElementById('diary-type').value;
+  const product = document.getElementById('diary-product').value;
+  const method = document.getElementById('diary-method').value;
+  const result = document.getElementById('diary-result').value.trim();
   
-  if(!name) { showToast('⚠️ Nhập tên RM!'); return; }
+  if (!sm || !rm || !customer || !result) {
+    return showToast("⚠️ Vui lòng nhập đủ các trường!");
+  }
   
-  localStorage.setItem('rm_name', name);
-  const btn = document.getElementById('btn-submit-report');
-  btn.textContent = '⏳ Đang gửi...';
+  const btn = document.getElementById('btn-submit-diary');
+  btn.textContent = '⏳ Đang đồng bộ...';
   btn.disabled = true;
   
   const payload = {
     date: new Date().toLocaleDateString('vi-VN') + ' ' + new Date().toLocaleTimeString('vi-VN'),
-    name: name,
-    calls: calls || 0,
-    meets: meets || 0, 
-    files: files || 0,
-    disburse: disburse || 0,
-    notes: notes || "Không có"
+    sm: sm,
+    rm: rm,
+    customer: customer,
+    type: type,
+    product: product,
+    method: method,
+    result: result
   };
   
-  // Link Google Sheets Webhook của Leader
-  const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxY1_CLkxzVmAbi_3YJEv_OW3WhPtPfVIlX4Y1rF3BwUScTJnWCpSHV_Z9KaAaAS5kvxQ/exec"; 
-  
-  if (!WEBHOOK_URL) {
-    setTimeout(() => {
-      btn.textContent = '✅ Đã lưu nháp cục bộ';
-      btn.disabled = false;
-      showToast('⚠️ Chưa cài đặt Google Sheets. App đã lưu tạm.');
-    }, 1500);
-    return;
-  }
+  const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzBVFzzmg8yDlzzOSHc4KIn4j-HY6mQmBjhqCAy8rZiqjNr97T1oBUOZpXUY-CKB3hM/exec";
   
   fetch(WEBHOOK_URL, {
     method: 'POST', mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   }).then(() => {
-    btn.textContent = '🚀 Đã gửi Report!';
-    showToast('Báo cáo đã lên hệ thống Leader!');
-    setTimeout(() => { btn.innerHTML = '📤 GỬI BÁO CÁO CHO LEADER'; btn.disabled = false; }, 3000);
+    btn.textContent = '🚀 Đã ghi Nhật ký!';
+    showToast('Nhật ký đã lên hệ thống Leader!');
+    
+    // AI COACHING LOGIC
+    processAiCoaching(result, type);
+    
+    setTimeout(() => { 
+      btn.innerHTML = '🚀 GỬI NHẬT KÝ (REAL-TIME)'; 
+      btn.disabled = false;
+      document.getElementById('diary-customer').value = '';
+      document.getElementById('diary-result').value = '';
+    }, 3000);
   }).catch(() => {
-    btn.textContent = '❌ Lỗi mạng';
+    btn.textContent = '❌ Lỗi kết nối';
     btn.disabled = false;
   });
+}
+
+function processAiCoaching(result, type) {
+  const box = document.getElementById('ai-feedback-box');
+  const text = document.getElementById('ai-feedback-text');
+  
+  let advice = "";
+  if (result.toLowerCase().includes("chê") || result.toLowerCase().includes("cao")) {
+    advice = "Khách đang lăn tăn về giá. Hãy dùng kịch bản 'So sánh lợi ích dài hạn' thay vì chỉ nói về lãi suất. Nhấn mạnh vào biên độ cố định 3.0% của VIB để họ yên tâm.";
+  } else if (result.toLowerCase().includes("bận") || result.toLowerCase().includes("sau")) {
+    advice = "Khách đang né tránh. Hãy gửi 1 tin nhắn Zalo kèm 1 Case Study thành công để 'nuôi dưỡng' mối quan hệ, đừng ép chốt ngay.";
+  } else if (type === "KHHH > 3 tỷ") {
+    advice = "🔥 ĐÂY LÀ KHÁCH VIP! Hãy nhờ SM hỗ trợ đi gặp trực tiếp để tăng tỷ lệ chốt. Đừng chỉ gọi điện.";
+  } else {
+    advice = "Làm tốt lắm! Hãy tiếp tục duy trì tương tác tốt với khách hàng này.";
+  }
+  
+  text.textContent = advice;
+  box.style.display = 'block';
+  box.scrollIntoView({ behavior: 'smooth' });
+}
+
+function useAiFeedback() {
+  const text = document.getElementById('ai-feedback-text').textContent;
+  const input = document.getElementById('ai-chat-input');
+  showPage('tools');
+  input.value = "Hãy viết giúp tôi 1 kịch bản Zalo dựa trên lời khuyên: " + text;
+  input.focus();
+}
+
+function checkMasterAuth() {
+  const pin = prompt("Nhập mã MASTER PIN để vào Dashboard:");
+  if (pin === "6789") {
+    window.open('dashboard.html', '_blank');
+  } else {
+    alert("Sai mật mã! Chỉ dành cho Leader.");
+  }
 }
 
 // ========== RATES & CALCULATOR ==========
@@ -376,8 +435,15 @@ function renderRateTables(rates) {
   });
 }
 
+function formatCurrency(input) {
+  let value = input.value.replace(/\D/g, '');
+  value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  input.value = value;
+}
+
 function calculateLoan() {
-  const amount = parseFloat(document.getElementById('calc-amount').value);
+  const amountStr = document.getElementById('calc-amount').value;
+  const amount = parseFloat(amountStr.replace(/\./g, ''));
   const months = parseInt(document.getElementById('calc-months').value);
   const type = document.getElementById('calc-type').value;
   
