@@ -18,6 +18,22 @@ auth.onAuthStateChanged((user) => {
   }
 });
 
+// XỬ LÝ REDIRECT RESULT (BẮT BUỘC CHO MOBILE)
+auth.getRedirectResult()
+  .then((result) => {
+    if (result.user) {
+      console.log("✅ Đăng nhập redirect thành công:", result.user.email);
+    }
+  })
+  .catch((error) => {
+    console.error("❌ Lỗi Redirect Auth:", error.code, error.message);
+    const errBox = document.getElementById('login-error');
+    if (errBox) {
+      errBox.textContent = "❌ Lỗi: " + error.message;
+      errBox.style.display = 'block';
+    }
+  });
+
 function showLoginScreen() {
   document.getElementById('login-overlay').classList.remove('hidden');
   document.getElementById('app').style.display = 'none';
@@ -304,7 +320,7 @@ async function sendGemini() {
     }));
     messages.push({ role: "user", parts: [{ text }] });
     
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ contents: messages })

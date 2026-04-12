@@ -313,10 +313,17 @@
             }
         });
 
+        // XỬ LÝ REDIRECT RESULT (BỎ SUNG CHO MOBILE)
+        auth.getRedirectResult().catch(err => {
+            console.error('Lỗi Redirect:', err);
+            alert('Lỗi đăng nhập: ' + err.message);
+        });
+
         function dashLogin() {
-            auth.signInWithPopup(googleProvider).catch(err => {
-                alert('Lỗi đăng nhập: ' + err.message);
-            });
+            const btn = document.querySelector('.login-gate-btn');
+            btn.textContent = '⏳ Đang chuyển hướng...';
+            btn.disabled = true;
+            auth.signInWithRedirect(googleProvider);
         }
 
         // ========== DATA SOURCE TOGGLE ==========
