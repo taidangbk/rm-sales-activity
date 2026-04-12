@@ -259,3 +259,16 @@ select.ai-input{min-height:auto;cursor:pointer}
   .page-title{font-size:28px}
   .quick-grid{grid-template-columns:repeat(7,1fr)}
 }
+/* ========== RESPONSIVE FORM GRID ========== */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+@media (min-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}

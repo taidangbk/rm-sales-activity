@@ -60,17 +60,18 @@ async function handleGoogleLogin() {
   const btn = document.getElementById('btn-google-login');
   const errBox = document.getElementById('login-error');
   
-  btn.textContent = '⏳ Đang đăng nhập...';
+  btn.textContent = '⏳ Đang chuyển hướng...';
   btn.disabled = true;
   errBox.style.display = 'none';
   
   try {
-    await auth.signInWithPopup(googleProvider);
+    // Chuyển sang Redirect để ổn định 100% trên Mobile & tránh lỗi COOP
+    await auth.signInWithRedirect(googleProvider);
   } catch (error) {
     console.error('Login error:', error);
     errBox.textContent = '❌ Lỗi đăng nhập: ' + error.message;
     errBox.style.display = 'block';
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.96 10.96 0 001 12c0 1.77.42 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Đăng nhập bằng Google';
+    btn.innerHTML = 'Đăng nhập bằng Google';
     btn.disabled = false;
   }
 }
@@ -529,11 +530,15 @@ function openDashboard() {
 // ========== AI CUSTOMER CLASSIFICATION ==========
 async function classifyCustomer() {
   const name = document.getElementById('cls-name').value.trim();
+  const phone = document.getElementById('cls-phone').value.trim();
+  const email = document.getElementById('cls-email').value.trim();
   const job = document.getElementById('cls-job').value;
   const need = document.getElementById('cls-need').value;
   const source = document.getElementById('cls-source').value;
   const contactCount = document.getElementById('cls-contact').value;
   const reaction = document.getElementById('cls-reaction').value;
+  const priority = document.getElementById('cls-priority').value;
+  const style = document.getElementById('cls-style').value;
   const income = document.getElementById('cls-income').value;
   const note = document.getElementById('cls-note').value.trim();
   
@@ -545,26 +550,23 @@ async function classifyCustomer() {
   btn.textContent = '⏳ AI đang phân tích...';
   btn.disabled = true;
   
-  // Show result area with loading state
   const resultBox = document.getElementById('classify-result');
   resultBox.style.display = 'block';
   document.getElementById('cls-badge').className = 'classify-badge';
   document.getElementById('cls-badge').textContent = '⏳ Đang phân tích...';
-  document.getElementById('cls-confidence').textContent = '—';
-  document.getElementById('cls-insight').textContent = '—';
-  document.getElementById('cls-script').textContent = '—';
-  document.getElementById('cls-objections').textContent = '—';
-  document.getElementById('cls-zalo').textContent = '—';
   
   resultBox.scrollIntoView({ behavior: 'smooth' });
   
-  const prompt = `Bạn là chuyên gia phân loại khách hàng tín dụng ngân hàng VIB.
+  const prompt = `Bạn là chuyên gia phân loại khách hàng tín dụng ngân hàng VIB. 
+Vui lòng phân loại dựa trên phong cách của khách hàng.
 
 Thông tin khách hàng:
-- Họ tên: ${name}
+- Họ tên: ${name} (Bảo mật thông tin liên hệ trong kịch bản)
 - Nghề nghiệp/Loại KH: ${job}
 - Nhu cầu vay: ${need}
 - Nguồn lead: ${source}
+- Ưu tiên quan tâm: ${priority}
+- Phong cách giao tiếp: ${style}
 - Số lần liên hệ: ${contactCount}
 - Phản ứng gần nhất: ${reaction}
 - Thu nhập ước tính: ${income}
@@ -574,18 +576,18 @@ BẮT BUỘC trả lời theo format JSON sau (KHÔNG markdown, KHÔNG giải th
 {
   "classification": "HOT" hoặc "WARM" hoặc "COLD" hoặc "POTENTIAL",
   "confidence": số từ 60-99,
-  "insight": "Phân tích ngắn gọn 2-3 câu về hành vi và động cơ khách hàng",
-  "script60s": "Kịch bản gọi điện 60 giây cá nhân hóa dành riêng cho khách hàng này (dạng text thuần, có xuống dòng)",
+  "insight": "Phân tích 2-3 câu về hành vi dựa trên PHONG CÁCH ${style} và ƯU TIÊN ${priority}",
+  "script60s": "Kịch bản gọi điện cá nhân hóa phù hợp với phong cách ${style}",
   "objections": [
-    {"q": "Từ chối 1 dự kiến", "a": "Cách xử lý 1"},
-    {"q": "Từ chối 2 dự kiến", "a": "Cách xử lý 2"},
-    {"q": "Từ chối 3 dự kiến", "a": "Cách xử lý 3"}
+    {"q": "Tình huống 1", "a": "Cách xử lý"},
+    {"q": "Tình huống 2", "a": "Cách xử lý"},
+    {"q": "Tình huống 3", "a": "Cách xử lý"}
   ],
-  "zaloMessage": "Tin nhắn Zalo follow-up phù hợp nhất (dạng text thuần, có xuống dòng)"
+  "zaloMessage": "Tin nhắn Zalo follow-up phù hợp (KHÔNG chèn SĐT khách hàng vào đây)"
 }`;
 
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -595,44 +597,58 @@ BẮT BUỘC trả lời theo format JSON sau (KHÔNG markdown, KHÔNG giải th
     });
     
     const data = await res.json();
-    
-    if (data.error) {
-      throw new Error(data.error.message);
-    }
-    
+    if (data.error) throw new Error(data.error.message);
+
     let rawText = data.candidates[0].content.parts[0].text;
-    // Clean markdown code fences if any
     rawText = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     
     const result = JSON.parse(rawText);
     renderClassifyResult(result, name);
     
-    // Save to Firestore
+    // ============ DUAL-SYNC: CRM + GOOGLE SHEETS ============
+    
+    // 1. Lưu vào Firestore
     try {
       db.collection('customers').add({
-        name: name,
-        job: job,
-        need: need,
-        source: source,
-        contactCount: contactCount,
-        reaction: reaction,
-        income: income,
-        note: note,
+        name, phone, email, job, need, source, contactCount, reaction, priority, style, income, note,
         classification: result.classification,
         confidence: result.confidence,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         userId: currentUser ? currentUser.uid : 'anonymous',
         userEmail: currentUser ? currentUser.email : ''
       });
-      console.log('✅ Customer saved to Firestore');
+      console.log('✅ Local CRM sync OK');
     } catch (e) {
-      console.warn('⚠️ Firestore save failed:', e.message);
+      console.warn('⚠️ CRM sync failed:', e.message);
     }
+
+    // 2. Gửi sang Google Sheets
+    const sheetData = {
+      type: 'AI_CLASSIFY',
+      dateStr: new Date().toLocaleDateString('vi-VN'),
+      name: name,
+      phone: phone,
+      email: email,
+      job: job,
+      need: need,
+      source: source,
+      rmName: currentUser ? (currentUser.displayName || 'RM') : 'RM',
+      classification: result.classification,
+      confidence: result.confidence,
+      insight: result.insight
+    };
+
+    fetch(WEBHOOK_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sheetData)
+    }).then(() => console.log('✅ Sheets sync OK'))
+      .catch(() => console.warn('⚠️ Sheets sync failed'));
     
   } catch (err) {
     console.error('Classification error:', err);
-    document.getElementById('cls-badge').textContent = '❌ Lỗi phân tích';
-    document.getElementById('cls-insight').textContent = 'Không thể phân tích. Vui lòng thử lại. Lỗi: ' + err.message;
+    document.getElementById('cls-badge').textContent = '❌ Lỗi AI';
+    document.getElementById('cls-insight').textContent = 'Lỗi: ' + err.message;
   }
   
   btn.textContent = '🤖 PHÂN LOẠI & TẠO KỊCH BẢN';
