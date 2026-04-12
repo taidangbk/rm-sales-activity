@@ -400,7 +400,7 @@ function toggleLendingFields(product) {
 }
 
 // ========== DUAL-SYNC DIARY SUBMIT ==========
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwZZRM1Eukb6zRRDAPseKxfr-tl3TVP1koYAMHcUtCEDY3nvYSM9aZEoy5oLCcE5ZIZ/exec";
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw-rhSCm5B7vH-2knZscwcfjbZiFzLMxOmVtCdnErnHGREUtfaJvzvmgV5hDX0e54Dp/exec";
 
 function submitDiary() {
   const sm = document.getElementById('diary-sm').value;
@@ -617,10 +617,18 @@ BẮT BUỘC trả lời theo format JSON (KHÔNG giải thích thêm):
 
       // 2. Sync sang Google Sheets
       const sheetData = {
-        type: 'AI_CLASSIFY',
-        ...customerData,
-        insight: result.insight,
-        date: new Date().toLocaleDateString('vi-VN')
+        date: new Date().toLocaleDateString('vi-VN') + ' ' + new Date().toLocaleTimeString('vi-VN'),
+        sm: currentUser ? (currentUser.displayName || 'RM') : 'RM',
+        rm: currentUser ? (currentUser.displayName || 'RM') : 'RM',
+        customer: name,          // Tên khách -> Cột D
+        type: 'AI_CLASSIFY',     // Loại -> Cột E
+        product: job,            // Nghề nghiệp -> Cột F
+        method: source,          // Nguồn -> Cột G
+        result: `${result.classification}: ${result.insight}`, // Kết quả -> Cột H
+        amount: priority,        // Ưu tiên -> Cột I
+        progress: style,         // Phong cách -> Cột J
+        phone: phone,            // (Sẽ lưu ngầm nếu sheet có cột)
+        email: email             // (Sẽ lưu ngầm nếu sheet có cột)
       };
       
       fetch(WEBHOOK_URL, {
