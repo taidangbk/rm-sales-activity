@@ -303,7 +303,7 @@ async function sendGemini() {
     }));
     messages.push({ role: "user", parts: [{ text }] });
     
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ contents: messages })
@@ -529,13 +529,9 @@ function openDashboard() {
 // ========== AI CUSTOMER CLASSIFICATION ==========
 async function classifyCustomer() {
   const name = document.getElementById('cls-name').value.trim();
-  const phone = document.getElementById('cls-phone').value.trim();
-  const email = document.getElementById('cls-email').value.trim();
   const job = document.getElementById('cls-job').value;
   const need = document.getElementById('cls-need').value;
   const source = document.getElementById('cls-source').value;
-  const priority = document.getElementById('cls-priority').value;
-  const style = document.getElementById('cls-style').value;
   const contactCount = document.getElementById('cls-contact').value;
   const reaction = document.getElementById('cls-reaction').value;
   const income = document.getElementById('cls-income').value;
@@ -563,15 +559,12 @@ async function classifyCustomer() {
   resultBox.scrollIntoView({ behavior: 'smooth' });
   
   const prompt = `Bạn là chuyên gia phân loại khách hàng tín dụng ngân hàng VIB.
-Vui lòng phân loại dựa trên phong cách của khách hàng.
 
 Thông tin khách hàng:
-- Họ tên: ${name} (Bảo mật thông tin liên hệ trong kịch bản)
+- Họ tên: ${name}
 - Nghề nghiệp/Loại KH: ${job}
 - Nhu cầu vay: ${need}
 - Nguồn lead: ${source}
-- Ưu tiên quan tâm: ${priority}
-- Phong cách giao tiếp: ${style}
 - Số lần liên hệ: ${contactCount}
 - Phản ứng gần nhất: ${reaction}
 - Thu nhập ước tính: ${income}
@@ -581,18 +574,18 @@ BẮT BUỘC trả lời theo format JSON sau (KHÔNG markdown, KHÔNG giải th
 {
   "classification": "HOT" hoặc "WARM" hoặc "COLD" hoặc "POTENTIAL",
   "confidence": số từ 60-99,
-  "insight": "Phân tích 2-3 câu về hành vi dựa trên PHONG CÁCH ${style} và ƯU TIÊN ${priority}",
-  "script60s": "Kịch bản gọi điện cá nhân hóa phù hợp với phong cách ${style}",
+  "insight": "Phân tích ngắn gọn 2-3 câu về hành vi và động cơ khách hàng",
+  "script60s": "Kịch bản gọi điện 60 giây cá nhân hóa dành riêng cho khách hàng này (dạng text thuần, có xuống dòng)",
   "objections": [
-    {"q": "Tình huống 1", "a": "Cách xử lý"},
-    {"q": "Tình huống 2", "a": "Cách xử lý"},
-    {"q": "Tình huống 3", "a": "Cách xử lý"}
+    {"q": "Từ chối 1 dự kiến", "a": "Cách xử lý 1"},
+    {"q": "Từ chối 2 dự kiến", "a": "Cách xử lý 2"},
+    {"q": "Từ chối 3 dự kiến", "a": "Cách xử lý 3"}
   ],
-  "zaloMessage": "Tin nhắn Zalo follow-up phù hợp (KHÔNG chèn SĐT khách hàng vào đây)"
+  "zaloMessage": "Tin nhắn Zalo follow-up phù hợp nhất (dạng text thuần, có xuống dòng)"
 }`;
 
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -617,8 +610,14 @@ BẮT BUỘC trả lời theo format JSON sau (KHÔNG markdown, KHÔNG giải th
     // Save to Firestore
     try {
       db.collection('customers').add({
-        name, phone, email, job, need, source, priority, style,
-        contactCount, reaction, income, note,
+        name: name,
+        job: job,
+        need: need,
+        source: source,
+        contactCount: contactCount,
+        reaction: reaction,
+        income: income,
+        note: note,
         classification: result.classification,
         confidence: result.confidence,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -628,34 +627,6 @@ BẮT BUỘC trả lời theo format JSON sau (KHÔNG markdown, KHÔNG giải th
       console.log('✅ Customer saved to Firestore');
     } catch (e) {
       console.warn('⚠️ Firestore save failed:', e.message);
-    }
-
-    // Sync to Google Sheets (AI_CLASSIFY)
-    try {
-      const sheetData = {
-        type: 'AI_CLASSIFY',
-        dateStr: new Date().toLocaleDateString('vi-VN'),
-        name: name,
-        phone: phone,
-        email: email,
-        job: job,
-        need: need,
-        source: source,
-        priority: priority,
-        style: style,
-        rmName: currentUser ? (currentUser.displayName || 'RM') : 'RM',
-        classification: result.classification,
-        confidence: result.confidence,
-        insight: result.insight
-      };
-      fetch(WEBHOOK_URL, {
-        method: 'POST', mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sheetData)
-      }).then(() => console.log('✅ Sheets sync OK'))
-        .catch(() => console.warn('⚠️ Sheets sync failed'));
-    } catch (e) {
-      console.warn('⚠️ Sheets sync error:', e.message);
     }
     
   } catch (err) {
