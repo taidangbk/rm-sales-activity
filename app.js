@@ -400,7 +400,7 @@ function toggleLendingFields(product) {
 }
 
 // ========== DUAL-SYNC DIARY SUBMIT ==========
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw-rhSCm5B7vH-2knZscwcfjbZiFzLMxOmVtCdnErnHGREUtfaJvzvmgV5hDX0e54Dp/exec";
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw1AylrPblweLRT_GefAA5k4TleynAqmmv0VawqGwj4QTyRaQqWrOe9VWinyeZmF_t0/exec";
 
 function submitDiary() {
   const sm = document.getElementById('diary-sm').value;
