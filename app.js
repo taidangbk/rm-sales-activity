@@ -402,7 +402,6 @@ function toggleLendingFields(product) {
 }
 
 // ========== DUAL-SYNC DIARY SUBMIT ==========
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwZZRM1Eukb6zRRDAPseKxfr-tl3TVP1koYAMHcUtCEDY3nvYSM9aZEoy5oLCcE5ZIZ/exec";
 
 function submitDiary() {
   const sm = document.getElementById('diary-sm').value;
