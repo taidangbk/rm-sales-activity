@@ -258,7 +258,7 @@
       </div>
     </div>
 
-    <!-- ==================== AI CLASSIFY PAGE (v2.1) ==================== -->
+    <!-- ==================== AI CLASSIFY PAGE (NEW) ==================== -->
     <div class="page" id="page-classify">
       <h2 class="page-title">🤖 AI Phân Loại Khách Hàng</h2>
       <p class="page-desc">Nhập thông tin → AI phân loại HOT/WARM/COLD/TIỀM NĂNG kèm kịch bản cá nhân hóa</p>
@@ -334,7 +334,7 @@
           </div>
         </div>
 
-        <div class="form-row">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
           <div>
             <label style="font-size:11px;color:var(--dim);font-weight:700">SỐ LẦN LIÊN HỆ</label>
             <select id="cls-contact" class="ai-input" style="min-height:42px;margin-top:4px;padding:0 10px">
@@ -355,7 +355,7 @@
           </div>
         </div>
 
-        <div class="form-row">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
           <div>
             <label style="font-size:11px;color:var(--dim);font-weight:700">THU NHẬP ƯỚC TÍNH</label>
             <select id="cls-income" class="ai-input" style="min-height:42px;margin-top:4px;padding:0 10px">
@@ -372,7 +372,7 @@
         </div>
 
         <button class="ai-btn" id="btn-classify" onclick="classifyCustomer()" style="background:linear-gradient(135deg,var(--vib-orange),#c4510b);box-shadow:0 4px 16px rgba(243,112,33,0.3);margin-top:6px">
-          🤖 PHÂN LOẠI &amp; TẠO KỊCH BẢN
+          🤖 PHÂN LOẠI & TẠO KỊCH BẢN
         </button>
       </div>
 
@@ -970,6 +970,6 @@ Có tin vui em báo ạ 😊</div>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
-<script src="app.js?v=4"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>

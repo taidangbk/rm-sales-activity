@@ -1,10 +1,9 @@
 // ============================================================
-// 637vib Sales Hub v2.1 — Main Application Logic
+// 637vib Sales Hub v2.0 — Main Application Logic
 // ============================================================
 
-// --- CẤU HÌNH API (ĐÃ TỰ ĐỘNG KHÔI PHỤC) ---
-const GEMINI_API_KEY = "AIzaSy" + "DspBtBGdVVgkB7HAqVOqGoF_qYCLIEU5k"; 
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwZZRM1Eukb6zRRDAPseKxfr-tl3TVP1koYAMHcUtCEDY3nvYSM9aZEoy5oLCcE5ZIZ/exec"; 
+// --- CẤU HÌNH API ---
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwZZRM1Eukb6zRRDAPseKxfr-tl3TVP1koYAMHcUtCEDY3nvYSM9aZEoy5oLCcE5ZIZ/exec";
 
 // ========== FIREBASE AUTH STATE MANAGEMENT ==========
 let currentUser = null;
@@ -307,7 +306,7 @@ async function sendGemini() {
     }));
     messages.push({ role: "user", parts: [{ text }] });
     
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ contents: messages })
@@ -553,50 +552,37 @@ async function classifyCustomer() {
   btn.textContent = '⏳ AI đang phân tích...';
   btn.disabled = true;
   
-  // Show result area with loading state
   const resultBox = document.getElementById('classify-result');
   resultBox.style.display = 'block';
-  document.getElementById('cls-badge').className = 'classify-badge';
   document.getElementById('cls-badge').textContent = '⏳ Đang phân tích...';
-  document.getElementById('cls-confidence').textContent = '—';
   document.getElementById('cls-insight').textContent = '—';
-  document.getElementById('cls-script').textContent = '—';
-  document.getElementById('cls-objections').textContent = '—';
-  document.getElementById('cls-zalo').textContent = '—';
-  
-  resultBox.scrollIntoView({ behavior: 'smooth' });
   
   const prompt = `Bạn là chuyên gia phân loại khách hàng tín dụng ngân hàng VIB.
 Vui lòng phân loại dựa trên phong cách của khách hàng.
 
 Thông tin khách hàng:
-- Họ tên: ${name} (Bảo mật thông tin liên hệ trong kịch bản)
-- Nghề nghiệp/Loại KH: ${job}
-- Nhu cầu vay: ${need}
-- Nguồn lead: ${source}
-- Ưu tiên quan tâm: ${priority}
-- Phong cách giao tiếp: ${style}
+- Họ tên: ${name}
+- Nghề nghiệp: ${job}
+- Nhu cầu: ${need}
+- Ưu tiên: ${priority}
+- Phong cách: ${style}
 - Số lần liên hệ: ${contactCount}
-- Phản ứng gần nhất: ${reaction}
-- Thu nhập ước tính: ${income}
-- Ghi chú: ${note || 'Không có'}
+- Phản ứng: ${reaction}
+- Thu nhập: ${income}
+- Ghi chú: ${note}
 
-BẮT BUỘC trả lời theo format JSON sau (KHÔNG markdown, KHÔNG giải thích thêm):
+BẮT BUỘC trả lời theo format JSON (KHÔNG giải thích thêm):
 {
   "classification": "HOT" hoặc "WARM" hoặc "COLD" hoặc "POTENTIAL",
   "confidence": số từ 60-99,
-  "insight": "Phân tích 2-3 câu về hành vi dựa trên PHONG CÁCH ${style} và ƯU TIÊN ${priority}",
-  "script60s": "Kịch bản gọi điện cá nhân hóa phù hợp với phong cách ${style}",
-  "objections": [
-    {"q": "Tình huống 1", "a": "Cách xử lý"},
-    {"q": "Tình huống 2", "a": "Cách xử lý"},
-    {"q": "Tình huống 3", "a": "Cách xử lý"}
-  ],
-  "zaloMessage": "Tin nhắn Zalo follow-up phù hợp (KHÔNG chèn SĐT khách hàng vào đây)"
+  "insight": "Phân tích 2-3 câu dựa trên PHONG CÁCH ${style} và ƯU TIÊN ${priority}",
+  "script60s": "Kịch bản gọi điện cá nhân hóa phù hợp phong cách ${style}",
+  "objections": [{"q": "Tình huống 1", "a": "Cách xử lý"}],
+  "zaloMessage": "Tin nhắn Zalo phù hợp"
 }`;
 
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -606,16 +592,11 @@ BẮT BUỘC trả lời theo format JSON sau (KHÔNG markdown, KHÔNG giải th
     });
     
     const data = await res.json();
-    console.log("AI Response Raw:", data); // Kiểm tra log này trong console
-
+    
     if (data.error) {
-      throw new Error("AI Error: " + data.error.message);
+      throw new Error(data.error.message);
     }
     
-    if (!data.candidates || !data.candidates[0]) {
-      throw new Error("AI không trả về kết quả hợp lệ.");
-    }
-
     let rawText = data.candidates[0].content.parts[0].text;
     // Clean markdown code fences if any
     rawText = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -623,49 +604,34 @@ BẮT BUỘC trả lời theo format JSON sau (KHÔNG markdown, KHÔNG giải th
     const result = JSON.parse(rawText);
     renderClassifyResult(result, name);
     
-    // Save to Firestore
+    // 🔥 DUAL-SYNC: Firestore & Google Sheets
     try {
-      db.collection('customers').add({
+      // 1. Lưu Firestore (CRM)
+      const customerData = {
         name, phone, email, job, need, source, priority, style,
         contactCount, reaction, income, note,
         classification: result.classification,
         confidence: result.confidence,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        userId: currentUser ? currentUser.uid : 'anonymous',
-        userEmail: currentUser ? currentUser.email : ''
-      });
-      console.log('✅ Customer saved to Firestore');
-    } catch (e) {
-      console.warn('⚠️ Firestore save failed:', e.message);
-    }
+        userId: currentUser ? currentUser.uid : 'anonymous'
+      };
+      db.collection('customers').add(customerData);
 
-    // Sync to Google Sheets (AI_CLASSIFY)
-    try {
+      // 2. Sync sang Google Sheets
       const sheetData = {
         type: 'AI_CLASSIFY',
-        dateStr: new Date().toLocaleDateString('vi-VN'),
-        name: name,
-        phone: phone,
-        email: email,
-        job: job,
-        need: need,
-        source: source,
-        priority: priority,
-        style: style,
-        rmName: currentUser ? (currentUser.displayName || 'RM') : 'RM',
-        classification: result.classification,
-        confidence: result.confidence,
-        insight: result.insight
+        ...customerData,
+        insight: result.insight,
+        date: new Date().toLocaleDateString('vi-VN')
       };
+      
       fetch(WEBHOOK_URL, {
         method: 'POST', mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(sheetData)
-      }).then(() => console.log('✅ Sheets sync OK'))
-        .catch(() => console.warn('⚠️ Sheets sync failed'));
-    } catch (e) {
-      console.warn('⚠️ Sheets sync error:', e.message);
-    }
+      }).then(() => console.log('✅ Sheets sync OK'));
+
+    } catch (e) { console.warn('⚠️ Sync failed:', e); }
     
   } catch (err) {
     console.error('Classification error:', err);

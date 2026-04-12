@@ -245,20 +245,6 @@ select.ai-input{min-height:auto;cursor:pointer}
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--green);color:#000;padding:10px 24px;border-radius:var(--radius-sm);font-size:13px;font-weight:700;opacity:0;transition:all .3s;z-index:200;pointer-events:none;box-shadow:0 4px 16px rgba(62,207,142,0.3)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* ========== RESPONSIVE FORM GRID ========== */
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-@media (min-width: 600px) {
-  .form-row {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
 /* ========== RESPONSIVE ========== */
 @media(min-width:768px){
   .quick-grid{grid-template-columns:repeat(4,1fr)}
