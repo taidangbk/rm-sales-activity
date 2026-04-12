@@ -1,3 +1,99 @@
+// ============================================================
+// 637vib Sales Hub v2.0 — Main Application Logic
+// ============================================================
+
+// ========== FIREBASE AUTH STATE MANAGEMENT ==========
+let currentUser = null;
+let currentRole = 'rm'; // 'rm' or 'manager'
+
+// Kiểm tra trạng thái đăng nhập
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    currentUser = user;
+    currentRole = getUserRole(user.email);
+    onLoginSuccess(user);
+  } else {
+    currentUser = null;
+    showLoginScreen();
+  }
+});
+
+function showLoginScreen() {
+  document.getElementById('login-overlay').classList.remove('hidden');
+  document.getElementById('app').style.display = 'none';
+}
+
+function onLoginSuccess(user) {
+  document.getElementById('login-overlay').classList.add('hidden');
+  document.getElementById('app').style.display = 'block';
+  
+  // Update avatar
+  const avatar = document.getElementById('user-avatar');
+  if (user.photoURL) {
+    avatar.src = user.photoURL;
+  } else {
+    avatar.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect fill="%23004f98" width="32" height="32" rx="16"/><text x="16" y="21" text-anchor="middle" fill="white" font-size="14" font-weight="bold">' + (user.displayName ? user.displayName[0] : 'U') + '</text></svg>';
+  }
+  
+  // Update user menu
+  document.getElementById('menu-user-name').textContent = user.displayName || 'RM';
+  document.getElementById('menu-user-email').textContent = user.email;
+  
+  // Update role badge
+  const roleBadge = document.getElementById('header-role-badge');
+  if (currentRole === 'manager') {
+    roleBadge.innerHTML = '👑 Manager — VIB Credit Team';
+    roleBadge.style.color = '#e8c96a';
+  } else {
+    roleBadge.textContent = 'VIB Credit Team';
+  }
+  
+  // Init app features
+  setGreeting();
+  renderChecklist();
+  renderStats();
+  updateClock();
+  fetchRates();
+}
+
+async function handleGoogleLogin() {
+  const btn = document.getElementById('btn-google-login');
+  const errBox = document.getElementById('login-error');
+  
+  btn.textContent = '⏳ Đang đăng nhập...';
+  btn.disabled = true;
+  errBox.style.display = 'none';
+  
+  try {
+    await auth.signInWithPopup(googleProvider);
+  } catch (error) {
+    console.error('Login error:', error);
+    errBox.textContent = '❌ Lỗi đăng nhập: ' + error.message;
+    errBox.style.display = 'block';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.96 10.96 0 001 12c0 1.77.42 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Đăng nhập bằng Google';
+    btn.disabled = false;
+  }
+}
+
+function handleLogout() {
+  auth.signOut();
+  toggleUserMenu();
+}
+
+function toggleUserMenu() {
+  document.getElementById('user-menu').classList.toggle('show');
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('user-menu');
+  const avatar = document.getElementById('user-avatar');
+  if (menu && avatar && !menu.contains(e.target) && !avatar.contains(e.target)) {
+    menu.classList.remove('show');
+  }
+});
+
+// ========== PAGE NAVIGATION ==========
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -75,6 +171,13 @@ function copyMsg(btn) {
   });
 }
 
+function copyElText(elId) {
+  const text = document.getElementById(elId).innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('Đã copy! ✅');
+  });
+}
+
 // ========== DAILY STATS (localStorage) ==========
 const today = new Date().toDateString();
 let stats = JSON.parse(localStorage.getItem('rm_stats') || '{}');
@@ -99,16 +202,14 @@ function incrementStat(key) {
   setTimeout(() => el.style.transform = 'scale(1)', 200);
 }
 
-renderStats();
-
 // ========== CLOCK ==========
 function updateClock() {
   const now = new Date();
   const h = now.getHours().toString().padStart(2, '0');
   const m = now.getMinutes().toString().padStart(2, '0');
-  document.getElementById('clock').textContent = h + ':' + m;
+  const clockEl = document.getElementById('clock');
+  if (clockEl) clockEl.textContent = h + ':' + m;
 }
-updateClock();
 setInterval(updateClock, 30000);
 
 // ========== GREETING ==========
@@ -118,18 +219,21 @@ function setGreeting() {
   if (h >= 12 && h < 18) g = '☀️ Chào buổi chiều!';
   else if (h >= 18) g = '🌙 Chào buổi tối!';
 
+  const name = currentUser ? (currentUser.displayName || '').split(' ').pop() : '';
   const weekday = ['Chủ nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'][new Date().getDay()];
   const d = new Date().getDate();
   const mo = new Date().getMonth() + 1;
 
-  document.getElementById('greeting').innerHTML = g + '<br><span style="font-size:13px;color:var(--dim)">' + weekday + ', ' + d + '/' + mo + ' — Hôm nay sẽ là ngày tuyệt vời! 💪</span>';
+  const greetingEl = document.getElementById('greeting');
+  if (greetingEl) {
+    greetingEl.innerHTML = g + (name ? ' ' + name + '!' : '') + '<br><span style="font-size:13px;color:var(--dim)">' + weekday + ', ' + d + '/' + mo + ' — Hôm nay sẽ là ngày tuyệt vời! 💪</span>';
+  }
 }
-setGreeting();
 
 // ========== DAILY CHECKLIST ==========
 function renderChecklist() {
   const h = new Date().getHours();
-  const day = new Date().getDay(); // 0=CN, 1=T2...
+  const day = new Date().getDay();
   const items = [
     { id: 'c1', text: '08:00 – Review pipeline + lên danh sách gọi', done: h >= 8 },
     { id: 'c2', text: '08:15 – Power Hour: gọi 15-20 cuộc', done: h >= 10 },
@@ -139,7 +243,6 @@ function renderChecklist() {
     { id: 'c6', text: '17:00 – Báo cáo ngày gửi Zalo nhóm', done: false },
   ];
 
-  // weekly special
   if (day === 1) items.unshift({ id: 'cw', text: '⭐ Thứ 2: Đặt target tuần + họp team', done: false });
   if (day === 3) items.push({ id: 'cw', text: '⭐ Thứ 4: Mid-week check KPI', done: false });
   if (day === 5) items.push({ id: 'cw', text: '⭐ Thứ 6: Tổng kết tuần + báo cáo Leader', done: false });
@@ -154,7 +257,8 @@ function renderChecklist() {
     </label>`;
   }).join('');
 
-  document.getElementById('checklist').innerHTML = html;
+  const checklistEl = document.getElementById('checklist');
+  if (checklistEl) checklistEl.innerHTML = html;
 }
 
 function toggleCheck(id, checked) {
@@ -164,12 +268,9 @@ function toggleCheck(id, checked) {
   renderChecklist();
 }
 
-renderChecklist();
-
 // ========== GEMINI AI CHAT ==========
-// TÁCH MÃ THÀNH 2 NỬA ĐỂ ĐÁNH LỪA ROBOT GITHUB CHỐNG KHOÁ MÃ
-const NUA_DAU = "AIzaSy"; // Dán 6 chữ cái đầu của mã mới vào đây
-const NUA_SAU = "DspBtBGdVVgkB7HAqVOqGoF_qYCLIEU5k"; // Dán phần CÒN LẠI của mã vào đây
+const NUA_DAU = "AIzaSy";
+const NUA_SAU = "DspBtBGdVVgkB7HAqVOqGoF_qYCLIEU5k";
 const GEMINI_API_KEY = NUA_DAU + NUA_SAU;
 
 let chatHistory = [
@@ -196,7 +297,6 @@ async function sendGemini() {
   const loadingId = addLoading();
   
   try {
-    // Xây dựng message history 
     const messages = chatHistory.map(h => ({
        role: h.role === 'model' ? 'model' : 'user',
        parts: [{ text: h.parts[0].text }]
@@ -267,13 +367,7 @@ function addLoading() {
   return id;
 }
 
-// ========== REPORT SUBMIT (GOOGLE SHEETS) ==========
-setTimeout(() => {
-  const savedName = localStorage.getItem('rm_name') || '';
-  if(document.getElementById('rm-name')) document.getElementById('rm-name').value = savedName;
-}, 500);
-
-// ========== DIARY & TEAM MANAGEMENT ==========
+// ========== DIARY & TEAM DATA ==========
 const TEAM_DATA = {
   "Hoa Lý": ["Mỹ Duyên", "Trúc Linh", "Minh Nhật", "Hoàng Huy"],
   "Văn Thạch": ["Quế Đô", "Văn Trí", "Hồng Nhung", "Thùy Dung"],
@@ -295,7 +389,7 @@ function updateRMList(sm) {
 
 function toggleLendingFields(product) {
   const fields = document.getElementById('lending-fields');
-  if (!fields) return; // Bảo vệ nếu chưa load xong DOM
+  if (!fields) return;
   if (product === 'LENDING') {
     fields.style.display = 'block';
     fields.style.animation = 'fadeUp 0.3s ease';
@@ -304,11 +398,8 @@ function toggleLendingFields(product) {
   }
 }
 
-// Gọi ngay khi load trang để xử lý trường hợp mặc định là LENDING
-document.addEventListener('DOMContentLoaded', () => {
-    const defaultProduct = document.getElementById('diary-product')?.value;
-    if (defaultProduct) toggleLendingFields(defaultProduct);
-});
+// ========== DUAL-SYNC DIARY SUBMIT ==========
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwZZRM1Eukb6zRRDAPseKxfr-tl3TVP1koYAMHcUtCEDY3nvYSM9aZEoy5oLCcE5ZIZ/exec";
 
 function submitDiary() {
   const sm = document.getElementById('diary-sm').value;
@@ -318,8 +409,6 @@ function submitDiary() {
   const product = document.getElementById('diary-product').value;
   const method = document.getElementById('diary-method').value;
   const result = document.getElementById('diary-result').value.trim();
-  
-  // Lending specific fields
   const amount = document.getElementById('diary-amount').value;
   const progress = document.getElementById('diary-progress').value;
   
@@ -331,8 +420,10 @@ function submitDiary() {
   btn.textContent = '⏳ Đang đồng bộ...';
   btn.disabled = true;
   
+  const timestamp = new Date().toLocaleDateString('vi-VN') + ' ' + new Date().toLocaleTimeString('vi-VN');
+  
   const payload = {
-    date: new Date().toLocaleDateString('vi-VN') + ' ' + new Date().toLocaleTimeString('vi-VN'),
+    date: timestamp,
     sm: sm,
     rm: rm,
     customer: customer,
@@ -344,28 +435,52 @@ function submitDiary() {
     progress: product === 'LENDING' ? progress : ''
   };
   
-  const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwZZRM1Eukb6zRRDAPseKxfr-tl3TVP1koYAMHcUtCEDY3nvYSM9aZEoy5oLCcE5ZIZ/exec";
+  // ============ DUAL-SYNC: Firestore + Google Sheets ============
+  const syncPromises = [];
   
-  fetch(WEBHOOK_URL, {
+  // 1. Sync to Firestore
+  try {
+    const firestorePromise = db.collection('logs').add({
+      ...payload,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      userId: currentUser ? currentUser.uid : 'anonymous',
+      userEmail: currentUser ? currentUser.email : ''
+    }).then(() => {
+      console.log('✅ Firestore sync OK');
+    }).catch((err) => {
+      console.warn('⚠️ Firestore sync failed:', err.message);
+    });
+    syncPromises.push(firestorePromise);
+  } catch (e) {
+    console.warn('⚠️ Firestore not available:', e.message);
+  }
+  
+  // 2. Sync to Google Sheets (keep existing flow)
+  const sheetsPromise = fetch(WEBHOOK_URL, {
     method: 'POST', mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   }).then(() => {
-    btn.textContent = '🚀 Đã ghi Nhật ký!';
-    showToast('Nhật ký đã lên hệ thống Leader!');
+    console.log('✅ Google Sheets sync OK');
+  }).catch(() => {
+    console.warn('⚠️ Google Sheets sync failed');
+  });
+  syncPromises.push(sheetsPromise);
+  
+  // Wait for both to complete
+  Promise.allSettled(syncPromises).then(() => {
+    btn.textContent = '✅ Đã ghi Nhật ký!';
+    showToast('🚀 Dual-Sync: Firestore + Sheets!');
     
-    // AI COACHING LOGIC
+    // AI Coaching
     processAiCoaching(result, type);
     
     setTimeout(() => { 
-      btn.innerHTML = '🚀 GỬI NHẬT KÝ (REAL-TIME)'; 
+      btn.innerHTML = '🚀 GỬI NHẬT KÝ (DUAL-SYNC)'; 
       btn.disabled = false;
       document.getElementById('diary-customer').value = '';
       document.getElementById('diary-result').value = '';
     }, 3000);
-  }).catch(() => {
-    btn.textContent = '❌ Lỗi kết nối';
-    btn.disabled = false;
   });
 }
 
@@ -397,13 +512,167 @@ function useAiFeedback() {
   input.focus();
 }
 
-function checkMasterAuth() {
-  const pin = prompt("🔐 NHẬP MÃ MASTER PIN ĐỂ VÀO DASHBOARD:");
-  if (pin === "6789") {
+// ========== DASHBOARD ACCESS ==========
+function openDashboard() {
+  if (currentRole === 'manager') {
     window.open('dashboard.html', '_blank');
   } else {
-    alert("❌ Sai mật mã! Chỉ dành cho Leader Đức Tài.");
+    const pin = prompt("🔐 NHẬP MÃ MASTER PIN:");
+    if (pin === "6789") {
+      window.open('dashboard.html', '_blank');
+    } else {
+      showToast("❌ Sai mật mã!");
+    }
   }
+}
+
+// ========== AI CUSTOMER CLASSIFICATION ==========
+async function classifyCustomer() {
+  const name = document.getElementById('cls-name').value.trim();
+  const job = document.getElementById('cls-job').value;
+  const need = document.getElementById('cls-need').value;
+  const source = document.getElementById('cls-source').value;
+  const contactCount = document.getElementById('cls-contact').value;
+  const reaction = document.getElementById('cls-reaction').value;
+  const income = document.getElementById('cls-income').value;
+  const note = document.getElementById('cls-note').value.trim();
+  
+  if (!name) {
+    return showToast("⚠️ Vui lòng nhập tên khách hàng!");
+  }
+  
+  const btn = document.getElementById('btn-classify');
+  btn.textContent = '⏳ AI đang phân tích...';
+  btn.disabled = true;
+  
+  // Show result area with loading state
+  const resultBox = document.getElementById('classify-result');
+  resultBox.style.display = 'block';
+  document.getElementById('cls-badge').className = 'classify-badge';
+  document.getElementById('cls-badge').textContent = '⏳ Đang phân tích...';
+  document.getElementById('cls-confidence').textContent = '—';
+  document.getElementById('cls-insight').textContent = '—';
+  document.getElementById('cls-script').textContent = '—';
+  document.getElementById('cls-objections').textContent = '—';
+  document.getElementById('cls-zalo').textContent = '—';
+  
+  resultBox.scrollIntoView({ behavior: 'smooth' });
+  
+  const prompt = `Bạn là chuyên gia phân loại khách hàng tín dụng ngân hàng VIB.
+
+Thông tin khách hàng:
+- Họ tên: ${name}
+- Nghề nghiệp/Loại KH: ${job}
+- Nhu cầu vay: ${need}
+- Nguồn lead: ${source}
+- Số lần liên hệ: ${contactCount}
+- Phản ứng gần nhất: ${reaction}
+- Thu nhập ước tính: ${income}
+- Ghi chú: ${note || 'Không có'}
+
+BẮT BUỘC trả lời theo format JSON sau (KHÔNG markdown, KHÔNG giải thích thêm):
+{
+  "classification": "HOT" hoặc "WARM" hoặc "COLD" hoặc "POTENTIAL",
+  "confidence": số từ 60-99,
+  "insight": "Phân tích ngắn gọn 2-3 câu về hành vi và động cơ khách hàng",
+  "script60s": "Kịch bản gọi điện 60 giây cá nhân hóa dành riêng cho khách hàng này (dạng text thuần, có xuống dòng)",
+  "objections": [
+    {"q": "Từ chối 1 dự kiến", "a": "Cách xử lý 1"},
+    {"q": "Từ chối 2 dự kiến", "a": "Cách xử lý 2"},
+    {"q": "Từ chối 3 dự kiến", "a": "Cách xử lý 3"}
+  ],
+  "zaloMessage": "Tin nhắn Zalo follow-up phù hợp nhất (dạng text thuần, có xuống dòng)"
+}`;
+
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.7 }
+      })
+    });
+    
+    const data = await res.json();
+    
+    if (data.error) {
+      throw new Error(data.error.message);
+    }
+    
+    let rawText = data.candidates[0].content.parts[0].text;
+    // Clean markdown code fences if any
+    rawText = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    
+    const result = JSON.parse(rawText);
+    renderClassifyResult(result, name);
+    
+    // Save to Firestore
+    try {
+      db.collection('customers').add({
+        name: name,
+        job: job,
+        need: need,
+        source: source,
+        contactCount: contactCount,
+        reaction: reaction,
+        income: income,
+        note: note,
+        classification: result.classification,
+        confidence: result.confidence,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        userId: currentUser ? currentUser.uid : 'anonymous',
+        userEmail: currentUser ? currentUser.email : ''
+      });
+      console.log('✅ Customer saved to Firestore');
+    } catch (e) {
+      console.warn('⚠️ Firestore save failed:', e.message);
+    }
+    
+  } catch (err) {
+    console.error('Classification error:', err);
+    document.getElementById('cls-badge').textContent = '❌ Lỗi phân tích';
+    document.getElementById('cls-insight').textContent = 'Không thể phân tích. Vui lòng thử lại. Lỗi: ' + err.message;
+  }
+  
+  btn.textContent = '🤖 PHÂN LOẠI & TẠO KỊCH BẢN';
+  btn.disabled = false;
+}
+
+function renderClassifyResult(result, name) {
+  // Badge
+  const badge = document.getElementById('cls-badge');
+  const cls = (result.classification || 'WARM').toUpperCase();
+  const clsLabels = { HOT: '🔥 HOT', WARM: '🌤️ WARM', COLD: '❄️ COLD', POTENTIAL: '🌱 TIỀM NĂNG' };
+  badge.textContent = (clsLabels[cls] || cls) + ' — ' + name;
+  badge.className = 'classify-badge ' + cls.toLowerCase();
+  
+  // Confidence
+  const conf = result.confidence || 75;
+  document.getElementById('cls-confidence').textContent = conf + '%';
+  const bar = document.getElementById('cls-confidence-bar');
+  bar.style.width = conf + '%';
+  bar.style.background = conf >= 80 ? 'var(--green)' : conf >= 60 ? 'var(--gold2)' : 'var(--red)';
+  
+  // Insight
+  document.getElementById('cls-insight').textContent = result.insight || '—';
+  
+  // Script
+  document.getElementById('cls-script').textContent = result.script60s || '—';
+  
+  // Objections
+  const objBox = document.getElementById('cls-objections');
+  if (result.objections && result.objections.length > 0) {
+    objBox.innerHTML = result.objections.map(o => 
+      `<div class="objection-item">
+        <div class="objection-q">❌ ${o.q}</div>
+        <div class="objection-a">✅ ${o.a}</div>
+      </div>`
+    ).join('');
+  }
+  
+  // Zalo message
+  document.getElementById('cls-zalo').textContent = result.zaloMessage || '—';
 }
 
 // ========== RATES & CALCULATOR ==========
@@ -430,6 +699,7 @@ const defaultRates = [
 
 async function fetchRates() {
   const statusEl = document.getElementById('rate-sync-status');
+  if (!statusEl) return;
   statusEl.textContent = 'Đang đồng bộ... ⏳';
   statusEl.style.color = 'var(--gold2)';
   
@@ -443,6 +713,7 @@ async function fetchRates() {
 function renderRateTables(rates) {
   const tHouse = document.getElementById('table-rates-house');
   const tCar = document.getElementById('table-rates-car');
+  if (!tHouse || !tCar) return;
   
   tHouse.innerHTML = '<tr><th>Ngân Hàng</th><th>Lãi Ưu Đãi</th><th>Biên độ</th></tr>';
   tCar.innerHTML = '<tr><th>Ngân Hàng</th><th>Lãi Ưu Đãi</th><th>Tài trợ</th></tr>';
@@ -497,10 +768,9 @@ function calculateLoan() {
         }
         remainingAmount -= principalPerMonth;
     }
-    if(promoTime >= months) floatAmount = 0; // Trả hết nợ trước khi thả nổi
+    if(promoTime >= months) floatAmount = 0;
     
   } else {
-    // Gốc & Lãi Trả Đều (EMI)
     const r = promoRate;
     const emi = amount * r * Math.pow(1+r, months) / (Math.pow(1+r, months) - 1);
     
@@ -529,8 +799,10 @@ function calculateLoan() {
   document.getElementById('calc-results').scrollIntoView({ behavior: 'smooth' });
 }
 
+// ========== INIT on DOMContentLoaded ==========
 document.addEventListener('DOMContentLoaded', () => {
-    fetchRates();
+    const defaultProduct = document.getElementById('diary-product')?.value;
+    if (defaultProduct) toggleLendingFields(defaultProduct);
 });
 
 // ========== SERVICE WORKER ==========

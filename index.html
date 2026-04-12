@@ -5,46 +5,76 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0a0c10">
-<title>RM Sales Hub – VIB</title>
+<meta name="theme-color" content="#080a0f">
+<meta name="description" content="637vib Sales Hub — Hệ thống Phòng Sale Năng Lực cho đội tín dụng VIB. AI phân loại khách hàng, kịch bản bán hàng, dashboard real-time.">
+<title>637vib Sales Hub — VIB Credit Team</title>
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="app">
+
+<!-- ========== LOGIN OVERLAY ========== -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">VIB</div>
+    <div class="login-title">637vib Sales Hub</div>
+    <div class="login-sub">Hệ thống Phòng Sale Năng Lực<br>Đăng nhập để bắt đầu</div>
+    <button class="login-btn" id="btn-google-login" onclick="handleGoogleLogin()">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.96 10.96 0 001 12c0 1.77.42 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      Đăng nhập bằng Google
+    </button>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-footer">Powered by Firebase Authentication</div>
+  </div>
+</div>
+
+<!-- ========== MAIN APP ========== -->
+<div id="app" style="display:none">
   <!-- HEADER -->
   <header class="header">
     <div class="header-left">
-      <div class="logo">RM</div>
-      <div><div class="header-title">RM Sales Hub</div><div class="header-sub">VIB Credit Team</div></div>
+      <div class="logo">VIB</div>
+      <div><div class="header-title">637vib Sales Hub</div><div class="header-sub" id="header-role-badge">VIB Credit Team</div></div>
     </div>
-    <div class="header-time" id="clock"></div>
+    <div class="header-right">
+      <div class="header-time" id="clock"></div>
+      <img class="user-avatar" id="user-avatar" src="" alt="Avatar" onclick="toggleUserMenu()">
+    </div>
+    <!-- User Dropdown Menu -->
+    <div class="user-menu" id="user-menu">
+      <div style="padding:10px 12px">
+        <div class="user-menu-name" id="menu-user-name">RM</div>
+        <div class="user-menu-email" id="menu-user-email">email@gmail.com</div>
+      </div>
+      <div class="user-menu-divider"></div>
+      <button class="user-menu-item" onclick="handleLogout()">🚪 Đăng xuất</button>
+    </div>
   </header>
 
   <!-- BOTTOM NAV -->
-  <nav class="bottom-nav">
+  <nav class="bottom-nav" id="bottom-nav">
     <button class="nav-btn active" data-page="home" onclick="showPage('home')">
       <span class="nav-icon">🏠</span><span class="nav-label">Trang chủ</span>
     </button>
     <button class="nav-btn" data-page="sales" onclick="showPage('sales')">
       <span class="nav-icon">🎯</span><span class="nav-label">Bán hàng</span>
     </button>
+    <button class="nav-btn" data-page="classify" onclick="showPage('classify')">
+      <span class="nav-icon">🤖</span><span class="nav-label">Phân loại</span>
+    </button>
     <button class="nav-btn" data-page="care" onclick="showPage('care')">
       <span class="nav-icon">💚</span><span class="nav-label">Chăm sóc</span>
     </button>
-    <button class="nav-btn" data-page="scripts" onclick="showPage('scripts')">
-      <span class="nav-icon">💬</span><span class="nav-label">Kịch bản</span>
-    </button>
     <button class="nav-btn" data-page="tools" onclick="showPage('tools')">
-      <span class="nav-icon">⚡</span><span class="nav-label">AI Tools</span>
+      <span class="nav-icon">⚡</span><span class="nav-label">AI Chat</span>
     </button>
   </nav>
 
   <!-- PAGES -->
   <main class="content">
 
-    <!-- HOME -->
+    <!-- ==================== HOME ==================== -->
     <div class="page active" id="page-home">
       <div class="greeting" id="greeting"></div>
       
@@ -66,21 +96,21 @@
           <span class="quick-icon">🛡️</span>
           <span class="quick-text">Xử lý<br>từ chối</span>
         </div>
-        <div class="quick-card" onclick="showPage('care');openAccordion('retention')">
-          <span class="quick-icon">🏠</span>
-          <span class="quick-text">Giữ chân<br>tất toán</span>
+        <div class="quick-card" onclick="showPage('classify')">
+          <span class="quick-icon">🤖</span>
+          <span class="quick-text">AI Phân<br>loại KH</span>
         </div>
         <div class="quick-card" onclick="showPage('care');openAccordion('referral')">
           <span class="quick-icon">🤝</span>
           <span class="quick-text">Xin<br>Referral</span>
         </div>
-        <div class="quick-card" style="border-color: rgba(243, 112, 33, 0.5);" onclick="showPage('roadmap')">
+        <div class="quick-card" style="border-color:rgba(243,112,33,0.3)" onclick="showPage('roadmap')">
           <span class="quick-icon">📅</span>
           <span class="quick-text" style="color:var(--vib-orange)">Lộ trình<br>Marketing</span>
         </div>
-        <div class="quick-card" style="border-color: rgba(62,207,142,0.5);" onclick="showPage('report')">
+        <div class="quick-card" style="border-color:rgba(62,207,142,0.3)" onclick="showPage('report')">
           <span class="quick-icon">🚀</span>
-          <span class="quick-text" style="color:var(--green)">Báo cáo<br>cuối ngày</span>
+          <span class="quick-text" style="color:var(--green)">Nhật ký<br>bán hàng</span>
         </div>
       </div>
 
@@ -108,7 +138,7 @@
       </div>
     </div>
 
-    <!-- SALES PAGE -->
+    <!-- ==================== SALES PAGE ==================== -->
     <div class="page" id="page-sales">
       <h2 class="page-title">🎯 Bán Hàng</h2>
 
@@ -205,7 +235,7 @@
 
       <div class="accordion" id="pipeline">
         <div class="acc-header" onclick="toggleAcc(this)">
-          <div class="acc-left"><span class="acc-icon">📊</span><span>Pipeline 7 bước & Tỷ lệ</span></div>
+          <div class="acc-left"><span class="acc-icon">📊</span><span>Pipeline 7 bước &amp; Tỷ lệ</span></div>
           <span class="acc-arrow">›</span>
         </div>
         <div class="acc-body">
@@ -228,11 +258,133 @@
       </div>
     </div>
 
-    <!-- RATES PAGE -->
-    <!-- RATES & CALCULATOR PAGE -->
+    <!-- ==================== AI CLASSIFY PAGE (NEW) ==================== -->
+    <div class="page" id="page-classify">
+      <h2 class="page-title">🤖 AI Phân Loại Khách Hàng</h2>
+      <p class="page-desc">Nhập thông tin → AI phân loại HOT/WARM/COLD/TIỀM NĂNG kèm kịch bản cá nhân hóa</p>
+
+      <div class="ai-card" style="padding:20px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div>
+            <label style="font-size:11px;color:var(--dim);font-weight:700">HỌ TÊN KHÁCH *</label>
+            <input type="text" id="cls-name" class="ai-input" style="min-height:42px;margin-top:4px" placeholder="Nguyễn Văn A">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--dim);font-weight:700">NGHỀ NGHIỆP / LOẠI KH *</label>
+            <select id="cls-job" class="ai-input" style="min-height:42px;margin-top:4px;padding:0 10px">
+              <option value="Cá nhân (Lương)">Cá nhân (Lương)</option>
+              <option value="Tiểu thương">Tiểu thương</option>
+              <option value="SME (Doanh nghiệp nhỏ)">SME (DN nhỏ)</option>
+              <option value="BĐT (Bất động thế)">BĐT</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div>
+            <label style="font-size:11px;color:var(--dim);font-weight:700">NHU CẦU VAY *</label>
+            <select id="cls-need" class="ai-input" style="min-height:42px;margin-top:4px;padding:0 10px">
+              <option value="Mua nhà">Mua nhà</option>
+              <option value="Vay kinh doanh">Vay kinh doanh</option>
+              <option value="Mua ô tô">Mua ô tô</option>
+              <option value="Tiêu dùng">Tiêu dùng</option>
+              <option value="Chưa rõ">Chưa rõ</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--dim);font-weight:700">NGUỒN LEAD *</label>
+            <select id="cls-source" class="ai-input" style="min-height:42px;margin-top:4px;padding:0 10px">
+              <option value="Telesale">Telesale</option>
+              <option value="Referral">Referral</option>
+              <option value="Inbound (KH tự tìm)">Inbound</option>
+              <option value="Zalo OA / Facebook">Zalo OA / Facebook</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div>
+            <label style="font-size:11px;color:var(--dim);font-weight:700">SỐ LẦN LIÊN HỆ</label>
+            <select id="cls-contact" class="ai-input" style="min-height:42px;margin-top:4px;padding:0 10px">
+              <option value="Chưa lần nào">Chưa lần nào</option>
+              <option value="1 lần">1 lần</option>
+              <option value="2 lần trở lên">2 lần trở lên</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--dim);font-weight:700">PHẢN ỨNG GẦN NHẤT</label>
+            <select id="cls-reaction" class="ai-input" style="min-height:42px;margin-top:4px;padding:0 10px">
+              <option value="Chưa liên hệ">Chưa liên hệ</option>
+              <option value="Quan tâm">Quan tâm</option>
+              <option value="Do dự">Do dự</option>
+              <option value="Từ chối">Từ chối</option>
+              <option value="Im lặng">Im lặng</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div>
+            <label style="font-size:11px;color:var(--dim);font-weight:700">THU NHẬP ƯỚC TÍNH</label>
+            <select id="cls-income" class="ai-input" style="min-height:42px;margin-top:4px;padding:0 10px">
+              <option value="Chưa biết">Chưa biết</option>
+              <option value="Dưới 15 triệu/tháng">< 15 triệu</option>
+              <option value="15-30 triệu/tháng">15–30 triệu</option>
+              <option value="Trên 30 triệu/tháng">> 30 triệu</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--dim);font-weight:700">GHI CHÚ THÊM</label>
+            <input type="text" id="cls-note" class="ai-input" style="min-height:42px;margin-top:4px" placeholder="VD: Đang so sánh với MB">
+          </div>
+        </div>
+
+        <button class="ai-btn" id="btn-classify" onclick="classifyCustomer()" style="background:linear-gradient(135deg,var(--vib-orange),#c4510b);box-shadow:0 4px 16px rgba(243,112,33,0.3);margin-top:6px">
+          🤖 PHÂN LOẠI & TẠO KỊCH BẢN
+        </button>
+      </div>
+
+      <!-- AI Result Area -->
+      <div id="classify-result" class="ai-card classify-result" style="display:none;border-color:var(--vib-orange);padding:20px">
+        <div style="text-align:center;margin-bottom:16px">
+          <div class="classify-badge" id="cls-badge">⏳ Đang phân tích...</div>
+          <div style="margin-top:10px">
+            <span style="font-size:11px;color:var(--dim)">Độ tin cậy: </span>
+            <span id="cls-confidence" style="font-size:13px;font-weight:800;color:var(--bright)">—</span>
+          </div>
+          <div class="confidence-bar" style="max-width:200px;margin:8px auto 0">
+            <div class="confidence-fill" id="cls-confidence-bar" style="width:0%;background:var(--green)"></div>
+          </div>
+        </div>
+
+        <div class="classify-section" id="cls-insight-box">
+          <div class="classify-section-title">💡 INSIGHT</div>
+          <div class="classify-script" id="cls-insight">—</div>
+        </div>
+
+        <div class="classify-section" id="cls-script-box">
+          <div class="classify-section-title">📞 KỊCH BẢN MỞ ĐẦU (60s)</div>
+          <div class="classify-script" id="cls-script">—</div>
+          <button class="copy-btn" onclick="copyElText('cls-script')">📋 Copy kịch bản</button>
+        </div>
+
+        <div class="classify-section" id="cls-objections-box">
+          <div class="classify-section-title">🛡️ TOP 3 TỪ CHỐI DỰ KIẾN</div>
+          <div id="cls-objections">—</div>
+        </div>
+
+        <div class="classify-section" id="cls-zalo-box">
+          <div class="classify-section-title">💬 TIN NHẮN ZALO FOLLOW-UP</div>
+          <div class="classify-script" id="cls-zalo">—</div>
+          <button class="copy-btn" onclick="copyElText('cls-zalo')">📋 Copy tin nhắn</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== RATES PAGE ==================== -->
     <div class="page" id="page-rates">
       <h2 class="page-title">💰 Công Cụ Lãi Suất</h2>
-      <p class="page-desc">Tự động lấy số liệu mới nhất & Tính dòng tiền.</p>
+      <p class="page-desc">Tự động lấy số liệu mới nhất &amp; Tính dòng tiền.</p>
       
       <div class="tab-pills" style="margin-bottom:16px">
         <button class="pill active" onclick="showRateTab(this,'tab-rates-list')">🏦 Báo Giá Các Bank</button>
@@ -256,7 +408,6 @@
             <div style="overflow-x:auto;">
               <table class="info-table" id="table-rates-house">
                 <tr><th>Ngân Hàng</th><th>Lãi Ưu Đãi</th><th>Tg Ưu Đãi</th></tr>
-                <!-- Data injected via JS -->
               </table>
             </div>
           </div>
@@ -271,7 +422,6 @@
             <div style="overflow-x:auto;">
               <table class="info-table" id="table-rates-car">
                 <tr><th>Ngân Hàng</th><th>Lãi Ưu Đãi</th><th>Tài trợ</th></tr>
-                <!-- Data injected via JS -->
               </table>
             </div>
           </div>
@@ -298,7 +448,7 @@
             </div>
           </div>
 
-          <div style="background:var(--bg3);padding:12px;border-radius:10px;border:1px solid var(--border);margin-bottom:16px">
+          <div style="background:var(--bg3);padding:12px;border-radius:12px;border:1px solid var(--border);margin-bottom:16px">
             <h4 style="font-size:13px;color:var(--bright);margin-bottom:10px">Thiết lập Lãi Suất Nhảy Bậc</h4>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
               <div>
@@ -319,10 +469,8 @@
           <button class="ai-btn" onclick="calculateLoan()" style="background:linear-gradient(135deg,var(--vib-orange),#c4510b);box-shadow:0 4px 10px rgba(243,112,33,.3);">🧮 TÍNH DÒNG TIỀN</button>
         </div>
 
-        <!-- RESULTS BOX -->
         <div id="calc-results" class="ai-card" style="display:none;padding:16px;border-color:var(--vib-orange)">
           <h3 style="font-size:15px;color:var(--vib-orange);text-align:center;margin-bottom:16px">Kết Quả Phân Tích Dòng Tiền</h3>
-          
           <div style="display:grid;gap:10px">
             <div style="display:flex;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid var(--border)">
               <span style="font-size:13px;color:var(--dim)">Gốc trả hàng tháng cố định:</span>
@@ -349,11 +497,11 @@
       </div>
     </div>
 
-    <!-- DIARY PAGE (REPLACED REPORT) -->
+    <!-- ==================== DIARY (REPORT) PAGE ==================== -->
     <div class="page" id="page-report">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <h2 class="page-title" style="margin:0">🚀 Nhật Ký Bán Hàng</h2>
-        <button class="stat-btn" onclick="checkMasterAuth()" style="position:static; padding:6px 10px; font-size:11px;">Admin 🔐</button>
+        <button class="stat-btn" onclick="openDashboard()" style="position:static; padding:6px 10px; font-size:11px;">Dashboard 📊</button>
       </div>
       <p class="page-desc" style="margin-bottom:15px">Ghi nhận nhanh kết quả làm việc với khách hàng.</p>
       
@@ -403,8 +551,8 @@
           </div>
         </div>
 
-        <!-- LENDING SPECIFIC FIELDS (Hidden by default) -->
-        <div id="lending-fields" style="display:none; padding:12px; background:rgba(74,158,255,0.05); border:1px dashed var(--blue); border-radius:10px; margin-bottom:12px;">
+        <!-- LENDING SPECIFIC FIELDS -->
+        <div id="lending-fields" style="display:none; padding:12px; background:rgba(74,158,255,0.05); border:1px dashed var(--blue); border-radius:12px; margin-bottom:12px;">
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
             <div>
               <label style="font-size:11px;color:var(--blue);font-weight:bold">Tiền vay (Tỷ đồng)</label>
@@ -435,17 +583,17 @@
         <label style="font-size:11px;color:var(--dim)">Kết quả / Ghi chú</label>
         <textarea id="diary-result" class="ai-input" style="margin-top:4px; min-height:80px" placeholder="VD: Khách đồng ý nộp hồ sơ, hẹn sáng thứ 2..."></textarea>
         
-        <button class="ai-btn" id="btn-submit-diary" onclick="submitDiary()" style="background:linear-gradient(135deg,var(--vib-orange),#c4510b); color:white; box-shadow:0 4px 10px rgba(243,112,33,.3); margin-top:16px;">🚀 GỬI NHẬT KÝ (REAL-TIME)</button>
+        <button class="ai-btn" id="btn-submit-diary" onclick="submitDiary()" style="background:linear-gradient(135deg,var(--vib-orange),#c4510b); color:white; box-shadow:0 4px 10px rgba(243,112,33,.3); margin-top:16px;">🚀 GỬI NHẬT KÝ (DUAL-SYNC)</button>
       </div>
 
-      <div id="ai-feedback-box" class="ai-card" style="display:none; margin-top:16px; border-color:var(--green); background:rgba(62,207,142,0.05)">
+      <div id="ai-feedback-box" class="ai-card" style="display:none; margin-top:16px; border-color:var(--green); background:rgba(62,207,142,0.03)">
          <div style="font-size:11px; color:var(--green); font-weight:bold; margin-bottom:4px">✨ AI COACHING GỢI Ý:</div>
          <p id="ai-feedback-text" style="font-size:12px; color:var(--text); line-height:1.5;"></p>
          <button class="copy-btn" style="margin-top:8px" onclick="useAiFeedback()">💬 Dùng kịch bản này</button>
       </div>
     </div>
 
-    <!-- CARE PAGE -->
+    <!-- ==================== CARE PAGE ==================== -->
     <div class="page" id="page-care">
       <h2 class="page-title">💚 Chăm Sóc KH Cũ</h2>
 
@@ -567,7 +715,7 @@ Em <span class="var">[Tên RM]</span> – VIB 🙏</div>
 
       <div class="accordion" id="crosssell">
         <div class="acc-header" onclick="toggleAcc(this)">
-          <div class="acc-left"><span class="acc-icon">📈</span><span>Cross-sell & Up-sell</span></div>
+          <div class="acc-left"><span class="acc-icon">📈</span><span>Cross-sell &amp; Up-sell</span></div>
           <span class="acc-arrow">›</span>
         </div>
         <div class="acc-body">
@@ -582,7 +730,7 @@ Em <span class="var">[Tên RM]</span> – VIB 🙏</div>
       </div>
     </div>
 
-    <!-- SCRIPTS PAGE -->
+    <!-- ==================== SCRIPTS PAGE ==================== -->
     <div class="page" id="page-scripts">
       <h2 class="page-title">💬 Kịch Bản Nhanh</h2>
       <p class="page-desc">Chọn tình huống → Copy → Gửi Zalo</p>
@@ -663,7 +811,7 @@ Có tin vui em báo ạ 😊</div>
       </div>
     </div>
 
-    <!-- ROADMAP 90 DAYS PAGE -->
+    <!-- ==================== ROADMAP 90 DAYS ==================== -->
     <div class="page" id="page-roadmap">
       <h2 class="page-title" style="color:var(--vib-orange)">📅 Lộ Trình 90 Ngày</h2>
       <p class="page-desc">Chỉ định chính xác nội dung cần xây dựng từng tuần để hút khách hàng thụ động.</p>
@@ -699,7 +847,7 @@ Có tin vui em báo ạ 😊</div>
       <div class="rm-month-card" id="rm-m2">
         <div class="rm-month-header" onclick="toggleAcc(this)">
           <div>
-            <div class="rm-month-title">Tháng 2: Engagement (Kích thích & Nỗi đau)</div>
+            <div class="rm-month-title">Tháng 2: Engagement (Kích thích &amp; Nỗi đau)</div>
             <div class="rm-month-desc">Khoét sâu Nỗi đau của khách, sử dụng công thức PAS</div>
           </div>
           <span class="acc-arrow" style="color:#fff;font-size:20px">›</span>
@@ -727,7 +875,7 @@ Có tin vui em báo ạ 😊</div>
       <div class="rm-month-card" id="rm-m3">
         <div class="rm-month-header" onclick="toggleAcc(this)">
           <div>
-            <div class="rm-month-title">Tháng 3: Conversion (Chốt Hẹn & Giải Ngân)</div>
+            <div class="rm-month-title">Tháng 3: Conversion (Chốt Hẹn &amp; Giải Ngân)</div>
             <div class="rm-month-desc">Khoe thành tích BAB, đưa Lead Magnet hút khách</div>
           </div>
           <span class="acc-arrow" style="color:#fff;font-size:20px">›</span>
@@ -753,7 +901,7 @@ Có tin vui em báo ạ 😊</div>
       </div>
     </div>
 
-    <!-- AI TOOLS PAGE -->
+    <!-- ==================== AI TOOLS PAGE ==================== -->
     <div class="page" id="page-tools" style="display: flex; flex-direction: column; height: calc(100vh - 140px);">
       <h2 class="page-title">⚡ Trợ Lý Cố Vấn (Gemini AI)</h2>
       <p class="page-desc" style="margin-bottom:8px">Hỗ trợ RM phân tích, viết Zalo, kỹ năng chốt sale</p>
@@ -785,6 +933,11 @@ Có tin vui em báo ạ 😊</div>
 <!-- TOAST -->
 <div class="toast" id="toast">Đã copy! ✅</div>
 
-<script src="app.js?v=2"></script>
+<!-- Firebase SDK (compat mode for simplicity) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>
