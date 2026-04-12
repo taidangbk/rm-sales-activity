@@ -1,6 +1,10 @@
 // ============================================================
-// 637vib Sales Hub v2.0 — Main Application Logic
+// 637vib Sales Hub v2.1 — Main Application Logic
 // ============================================================
+
+// --- CẤU HÌNH API (ĐÃ TỰ ĐỘNG KHÔI PHỤC) ---
+const GEMINI_API_KEY = "AIzaSy" + "DspBtBGdVVgkB7HAqVOqGoF_qYCLIEU5k"; 
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwZZRM1Eukb6zRRDAPseKxfr-tl3TVP1koYAMHcUtCEDY3nvYSM9aZEoy5oLCcE5ZIZ/exec"; 
 
 // ========== FIREBASE AUTH STATE MANAGEMENT ==========
 let currentUser = null;
@@ -602,11 +606,16 @@ BẮT BUỘC trả lời theo format JSON sau (KHÔNG markdown, KHÔNG giải th
     });
     
     const data = await res.json();
-    
+    console.log("AI Response Raw:", data); // Kiểm tra log này trong console
+
     if (data.error) {
-      throw new Error(data.error.message);
+      throw new Error("AI Error: " + data.error.message);
     }
     
+    if (!data.candidates || !data.candidates[0]) {
+      throw new Error("AI không trả về kết quả hợp lệ.");
+    }
+
     let rawText = data.candidates[0].content.parts[0].text;
     // Clean markdown code fences if any
     rawText = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
