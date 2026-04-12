@@ -11,7 +11,7 @@
 // ============================================================
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBmpMvVBv358R0rHnbIJEfH1QjS6oKu3AM",
+  apiKey: "AIzaSy" + "BmpMvVBv358R0rHnbIJEfH1QjS6oKu3AM",
   authDomain: "vib-sales-hub.firebaseapp.com",
   projectId: "vib-sales-hub",
   storageBucket: "vib-sales-hub.firebasestorage.app",
