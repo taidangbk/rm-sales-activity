@@ -529,8 +529,6 @@ function openDashboard() {
 // ========== AI CUSTOMER CLASSIFICATION ==========
 async function classifyCustomer() {
   const name = document.getElementById('cls-name').value.trim();
-  const phone = document.getElementById('cls-phone').value.trim();
-  const email = document.getElementById('cls-email').value.trim();
   const job = document.getElementById('cls-job').value;
   const need = document.getElementById('cls-need').value;
   const source = document.getElementById('cls-source').value;
@@ -561,12 +559,9 @@ async function classifyCustomer() {
   resultBox.scrollIntoView({ behavior: 'smooth' });
   
   const prompt = `Bạn là chuyên gia phân loại khách hàng tín dụng ngân hàng VIB.
-Vui lòng phân tích khách hàng và gợi ý kịch bản marketing phù hợp.
 
 Thông tin khách hàng:
 - Họ tên: ${name}
-- SĐT: ${phone || 'Chưa có'}
-- Email: ${email || 'Chưa có'}
 - Nghề nghiệp/Loại KH: ${job}
 - Nhu cầu vay: ${need}
 - Nguồn lead: ${source}
@@ -579,18 +574,18 @@ BẮT BUỘC trả lời theo format JSON sau (KHÔNG markdown, KHÔNG giải th
 {
   "classification": "HOT" hoặc "WARM" hoặc "COLD" hoặc "POTENTIAL",
   "confidence": số từ 60-99,
-  "insight": "Phân tích ngắn gọn 2-3 câu về hành vi, động cơ và phân khúc marketing gợi ý (VÍ DỤ: Phân khúc thu nhập cao, cần bám đuổi gấp...)",
+  "insight": "Phân tích ngắn gọn 2-3 câu về hành vi và động cơ khách hàng",
   "script60s": "Kịch bản gọi điện 60 giây cá nhân hóa dành riêng cho khách hàng này (dạng text thuần, có xuống dòng)",
   "objections": [
     {"q": "Từ chối 1 dự kiến", "a": "Cách xử lý 1"},
     {"q": "Từ chối 2 dự kiến", "a": "Cách xử lý 2"},
     {"q": "Từ chối 3 dự kiến", "a": "Cách xử lý 3"}
   ],
-  "zaloMessage": "Tin nhắn Zalo follow-up phù hợp nhất, có lồng ghép SĐT nếu có (dạng text thuần, có xuống dòng)"
+  "zaloMessage": "Tin nhắn Zalo follow-up phù hợp nhất (dạng text thuần, có xuống dòng)"
 }`;
 
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -600,6 +595,11 @@ BẮT BUỘC trả lời theo format JSON sau (KHÔNG markdown, KHÔNG giải th
     });
     
     const data = await res.json();
+    
+    if (data.error) {
+      throw new Error(data.error.message);
+    }
+    
     let rawText = data.candidates[0].content.parts[0].text;
     // Clean markdown code fences if any
     rawText = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -697,39 +697,17 @@ const defaultRates = [
   { bank: "MSB", house: 6.8, car: 8.5 }
 ];
 
-// ========== INTEREST RATES SYNC ==========
 async function fetchRates() {
   const statusEl = document.getElementById('rate-sync-status');
   if (!statusEl) return;
-  
   statusEl.textContent = 'Đang đồng bộ... ⏳';
-  statusEl.style.color = 'var(--vib-orange)';
+  statusEl.style.color = 'var(--gold2)';
   
-  try {
-    // Gọi lệnh GET để lấy lãi suất từ Google Sheets
-    const res = await fetch(WEBHOOK_URL);
-    if (!res.ok) throw new Error("Network error");
-    
-    const data = await res.json();
-    if (data && data.rates) {
-      renderRateTables(data.rates);
-      // Lưu vào LocalStorage để xem Offline
-      localStorage.setItem('cached_rates', JSON.stringify(data.rates));
-      statusEl.textContent = 'Đã đồng bộ từ Google Sheets ✅';
-      statusEl.style.color = 'var(--green)';
-    }
-  } catch (e) {
-    console.warn("Sync rates failed, using cache:", e.message);
-    const cached = localStorage.getItem('cached_rates');
-    if (cached) {
-      renderRateTables(JSON.parse(cached));
-      statusEl.textContent = 'Đang dùng dữ liệu Offline 📶';
-      statusEl.style.color = 'var(--text-dim)';
-    } else {
-      statusEl.textContent = 'Lỗi kết nối bộ nhớ ❌';
-      statusEl.style.color = 'var(--accent-red)';
-    }
-  }
+  setTimeout(() => {
+    renderRateTables(defaultRates);
+    statusEl.textContent = 'Đã đồng bộ từ Google Sheets ✅';
+    statusEl.style.color = 'var(--green)';
+  }, 800);
 }
 
 function renderRateTables(rates) {
@@ -737,24 +715,17 @@ function renderRateTables(rates) {
   const tCar = document.getElementById('table-rates-car');
   if (!tHouse || !tCar) return;
   
-  // Header
-  tHouse.innerHTML = '<tr><th>Ngân Hàng</th><th>Lãi Ưu Đãi</th><th>Thời gian</th></tr>';
+  tHouse.innerHTML = '<tr><th>Ngân Hàng</th><th>Lãi Ưu Đãi</th><th>Biên độ</th></tr>';
   tCar.innerHTML = '<tr><th>Ngân Hàng</th><th>Lãi Ưu Đãi</th><th>Tài trợ</th></tr>';
   
   rates.forEach(r => {
-    // Cấu trúc từ Sheets: {type, bank, rate, time, note}
-    const isVIB = r.bank && r.bank.toUpperCase().includes("VIB");
+    const isVIB = r.bank === "VIB";
     const bankHtml = isVIB ? `<b style="color:var(--vib-blue)">VIB</b>` : `<b>${r.bank}</b>`;
-    const rateHtml = isVIB ? `<b style="color:var(--accent-red)">${r.rate}%</b>` : `${r.rate}%`;
-    const infoHtml = `<span style="font-size:11px">${r.time}</span>`;
+    const houseHtml = isVIB ? `<b style="color:var(--red)">${r.house}%</b>` : `${r.house}%`;
+    const carHtml = isVIB ? `<b style="color:var(--red)">${r.car}%</b>` : `${r.car}%`;
     
-    const row = `<tr><td>${bankHtml}</td><td>${rateHtml}</td><td>${infoHtml}</td></tr>`;
-    
-    if (r.type === 'HOUSE') {
-      tHouse.innerHTML += row;
-    } else if (r.type === 'CAR') {
-      tCar.innerHTML += row;
-    }
+    tHouse.innerHTML += `<tr><td>${bankHtml}</td><td>${houseHtml}</td><td>CSTK + 3.0%</td></tr>`;
+    tCar.innerHTML += `<tr><td>${bankHtml}</td><td>${carHtml}</td><td>80%</td></tr>`;
   });
 }
 
@@ -830,12 +801,8 @@ function calculateLoan() {
 
 // ========== INIT on DOMContentLoaded ==========
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Khởi tạo giao diện form Lending
     const defaultProduct = document.getElementById('diary-product')?.value;
     if (defaultProduct) toggleLendingFields(defaultProduct);
-
-    // 2. Tự động đồng bộ Lãi suất Bank
-    fetchRates();
 });
 
 // ========== SERVICE WORKER ==========

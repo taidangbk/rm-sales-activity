@@ -212,72 +212,54 @@
                 </div>
             </div>
 
-            <!-- LEADERBOARD & RANKING -->
-            <div class="card leaderboard" style="margin-bottom:24px;">
-                <div class="card-header">
-                    <h2>👑 Top RM Giải Ngân</h2>
-                    <span style="font-size:11px;color:var(--text-dim)">Tháng 04/2026</span>
-                </div>
-                <div class="scroll-area">
-                    <table id="rm-rank-table">
-                        <thead>
-                            <tr><th>Hạng</th><th>Họ Tên RM</th><th>SM</th><th>Doanh Số</th><th>Hồ Sơ</th></tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- NEW: AI CUSTOMER LIST -->
-            <div class="card" style="margin-bottom:24px;">
-                <div class="card-header">
-                    <h2>💎 Khách Hàng AI Insight</h2>
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        <span class="live-dot"></span>
-                        <span style="font-size:11px;color:var(--text-dim)">Real-time</span>
-                    </div>
-                </div>
-                <div class="scroll-area">
-                    <table id="ai-customers-table">
-                        <thead>
-                            <tr><th>Khách Hàng</th><th>Phân loại</th><th>RM</th><th>Ngày</th><th>Chi tiết</th></tr>
-                        </thead>
-                        <tbody id="ai-customers-body">
-                            <tr><td colspan="5" class="loading">Đang tải dữ liệu AI...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
             <div class="main-grid">
                 <div class="card">
                     <div class="card-header">
-                        <span>📊 Cơ Cấu Hồ sơ Vay</span>
+                        <span>🏆 Vua Giải Ngân (Xếp hạng theo Tiền tỷ)</span>
                         <span style="font-size:11px; color:var(--text-dim)" id="data-source-label">🔥 Firestore Real-time</span>
                     </div>
+                    <div class="scroll-area">
+                        <table id="rm-rank-table">
+                            <thead>
+                                <tr>
+                                    <th>HẠNG</th>
+                                    <th>HỌ TÊN RM</th>
+                                    <th>TEAM</th>
+                                    <th>PIPELINE (TỶ)</th>
+                                    <th>TIẾN ĐỘ</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">📊 Cơ Cấu Hồ sơ Vay</div>
                     <div style="height: 300px; position: relative;">
                         <canvas id="funnelChart"></canvas>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-header">🤖 AI Phân Loại Khách Hàng — Tổng Quan</div>
-                    <div class="ai-summary-grid">
-                        <div class="ai-sum-card">
-                            <div class="ai-sum-label">🔥 HOT</div>
-                            <div class="ai-sum-num" id="ai-hot" style="color:#ff6b7a">0</div>
-                        </div>
-                        <div class="ai-sum-card">
-                            <div class="ai-sum-label">🌤️ WARM</div>
-                            <div class="ai-sum-num" id="ai-warm" style="color:#ffd54f">0</div>
-                        </div>
-                        <div class="ai-sum-card">
-                            <div class="ai-sum-label">❄️ COLD</div>
-                            <div class="ai-sum-num" id="ai-cold" style="color:#60a5fa">0</div>
-                        </div>
-                        <div class="ai-sum-card">
-                            <div class="ai-sum-label">🌱 TIỀM NĂNG</div>
-                            <div class="ai-sum-num" id="ai-potential" style="color:#5de0a8">0</div>
-                        </div>
+            </div>
+
+            <!-- AI Classification Summary -->
+            <div class="card ai-summary" style="margin-top:20px">
+                <div class="card-header">🤖 AI Phân Loại Khách Hàng — Tổng Quan</div>
+                <div class="ai-summary-grid">
+                    <div class="ai-sum-card">
+                        <div class="ai-sum-label">🔥 HOT</div>
+                        <div class="ai-sum-num" id="ai-hot" style="color:#ff6b7a">0</div>
+                    </div>
+                    <div class="ai-sum-card">
+                        <div class="ai-sum-label">🌤️ WARM</div>
+                        <div class="ai-sum-num" id="ai-warm" style="color:#ffd54f">0</div>
+                    </div>
+                    <div class="ai-sum-card">
+                        <div class="ai-sum-label">❄️ COLD</div>
+                        <div class="ai-sum-num" id="ai-cold" style="color:#60a5fa">0</div>
+                    </div>
+                    <div class="ai-sum-card">
+                        <div class="ai-sum-label">🌱 TIỀM NĂNG</div>
+                        <div class="ai-sum-num" id="ai-potential" style="color:#5de0a8">0</div>
                     </div>
                 </div>
             </div>
@@ -302,29 +284,12 @@
         </div>
     </div>
 
-    <!-- Modal -->
-    <div id="modal-overlay" class="modal-overlay" onclick="closeModal()">
-        <div class="modal" onclick="event.stopPropagation()">
-            <h2 id="m-name" style="color:var(--text-bright)">-</h2>
-            <p id="m-meta" style="font-size:12px; color:var(--text-dim); margin-bottom:16px"></p>
-            <div style="display:grid; gap:10px; font-size:13px">
-                <div>📞 <b>Phone:</b> <span id="m-phone"></span></div>
-                <div>📧 <b>Email:</b> <span id="m-email"></span></div>
-                <div>💡 <b>Insight:</b> <p id="m-insight" style="margin-top:5px; color:var(--text-dim)"></p></div>
-                <div>💬 <b>Script:</b> <pre id="m-script" style="margin-top:5px; background:var(--bg); padding:10px; border-radius:8px; white-space:pre-wrap; font-size:12px"></pre></div>
-            </div>
-            <button onclick="closeModal()" style="margin-top:20px; width:100%; padding:10px; border-radius:8px; border:none; background:var(--vib-blue); color:white; cursor:pointer">Đóng</button>
-        </div>
-    </div>
-
     <script>
         const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwZZRM1Eukb6zRRDAPseKxfr-tl3TVP1koYAMHcUtCEDY3nvYSM9aZEoy5oLCcE5ZIZ/exec";
         let rawData = [];
-        let aiData = [];
         let funnelChart;
         let dataSource = 'firestore'; // 'firestore' or 'sheets'
         let firestoreUnsubscribe = null;
-        let aiUnsubscribe = null;
 
         // ========== AUTH CHECK ==========
         auth.onAuthStateChanged((user) => {
@@ -334,7 +299,8 @@
                     document.getElementById('dash-login-gate').style.display = 'none';
                     document.getElementById('dash-main').style.display = 'block';
                     document.getElementById('dash-user-name').textContent = user.displayName || 'Leader';
-                    initData();
+                    fetchData();
+                    fetchAIStats();
                 } else {
                     document.getElementById('dash-login-gate').style.display = 'block';
                     document.getElementById('dash-main').style.display = 'none';
@@ -346,12 +312,6 @@
                 document.getElementById('dash-main').style.display = 'none';
             }
         });
-
-        function initData() {
-            setSource('firestore');
-            fetchAIStats();
-            listenAICustomers();
-        }
 
         function dashLogin() {
             auth.signInWithPopup(googleProvider).catch(err => {
@@ -374,64 +334,6 @@
             }
             
             fetchData();
-        }
-
-        function listenAICustomers() {
-            if (aiUnsubscribe) aiUnsubscribe();
-            try {
-                aiUnsubscribe = db.collection('customers')
-                    .orderBy('createdAt', 'desc')
-                    .limit(50)
-                    .onSnapshot((snapshot) => {
-                        aiData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                        renderAICustomers();
-                    });
-            } catch (e) {
-                console.warn('AI Listen error', e);
-            }
-        }
-
-        function renderAICustomers() {
-            const body = document.getElementById('ai-customers-body');
-            if (aiData.length === 0) {
-                body.innerHTML = '<tr><td colspan="5" class="loading">Chưa có khách hàng nào được phân loại</td></tr>';
-                return;
-            }
-            body.innerHTML = aiData.map(c => `
-                <tr>
-                    <td>
-                        <div style="font-weight:700; color:var(--text-bright)">${c.name}</div>
-                        <div style="font-size:11px; color:var(--text-dim)">${c.job || ''}</div>
-                    </td>
-                    <td>
-                        <div class="classify-badge ${c.classification ? c.classification.toLowerCase() : ''}">${c.classification || 'N/A'}</div>
-                        <div class="conf-mini-bar"><div class="conf-mini-fill" style="width:${c.confidence || 0}%"></div></div>
-                    </td>
-                    <td style="font-size:11px">${c.rmName || 'RM'}</td>
-                    <td style="font-size:11px; color:var(--text-dim)">${c.dateStr ? c.dateStr.split(' ')[0] : ''}</td>
-                    <td>
-                        <button class="source-btn active" onclick="showAIDetail('${c.id}')" style="padding:4px 8px; font-size:10px">Xem 👁️</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function showAIDetail(id) {
-            const c = aiData.find(item => item.id === id);
-            if (!c) return;
-
-            document.getElementById('m-name').textContent = c.name;
-            document.getElementById('m-meta').textContent = `RM: ${c.rmName} | Ngày: ${c.dateStr || ''}`;
-            document.getElementById('m-phone').textContent = c.phone || '—';
-            document.getElementById('m-email').textContent = c.email || '—';
-            document.getElementById('m-insight').textContent = c.insight || '—';
-            document.getElementById('m-script').textContent = c.script60s || (c.zaloMessage ? '--- Tin nhắn Zalo ---\n' + c.zaloMessage : '—');
-            
-            document.getElementById('modal-overlay').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('modal-overlay').style.display = 'none';
         }
 
         // ========== FETCH DATA ==========
