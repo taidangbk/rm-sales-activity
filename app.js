@@ -1,9 +1,7 @@
 // ============================================================
-// 637vib Sales Hub v2.0 — Main Application Logic
+// 637vib Sales Hub v2.1 — Main Application Logic
 // ============================================================
-
-// --- CẤU HÌNH API ---
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwZZRM1Eukb6zRRDAPseKxfr-tl3TVP1koYAMHcUtCEDY3nvYSM9aZEoy5oLCcE5ZIZ/exec";
+console.log("🚀 app.js v2.1 loaded successfully!");
 
 // ========== FIREBASE AUTH STATE MANAGEMENT ==========
 let currentUser = null;
@@ -402,6 +400,7 @@ function toggleLendingFields(product) {
 }
 
 // ========== DUAL-SYNC DIARY SUBMIT ==========
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwZZRM1Eukb6zRRDAPseKxfr-tl3TVP1koYAMHcUtCEDY3nvYSM9aZEoy5oLCcE5ZIZ/exec";
 
 function submitDiary() {
   const sm = document.getElementById('diary-sm').value;
