@@ -1,14 +1,5 @@
-const CACHE = '637vib-hub-v2';
-const ASSETS = [
-  './index.html',
-  './style.css',
-  './app.js',
-  './firebase-config.js',
-  './dashboard.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
-];
+const CACHE = 'rm-hub-v1';
+const ASSETS = ['./index.html', './style.css', './app.js'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
@@ -22,11 +13,6 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Exclude Firebase and external calls from cache-first strategy if needed
-  if (e.request.url.includes('firestore') || e.request.url.includes('google-analytics')) {
-    return;
-  }
-  
   e.respondWith(
     caches.match(e.request).then(r => r || fetch(e.request))
   );

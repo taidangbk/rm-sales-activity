@@ -1,11 +1,11 @@
 {
-  "name": "637vib Sales Hub — VIB Credit Team",
-  "short_name": "637vib Hub",
-  "description": "Hệ thống Phòng Sale Năng Lực cho đội tín dụng VIB. AI phân loại khách hàng, kịch bản bán hàng, dashboard real-time.",
+  "name": "RM Sales Hub – VIB",
+  "short_name": "RM Hub",
+  "description": "Công cụ bán hàng cho RM tín dụng",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#080a0f",
-  "theme_color": "#080a0f",
+  "background_color": "#0a0c10",
+  "theme_color": "#0a0c10",
   "orientation": "portrait",
   "icons": [
     {
