@@ -271,7 +271,7 @@ function toggleCheck(id, checked) {
 
 // ========== GEMINI AI CHAT ==========
 const NUA_DAU = "AIzaSy";
-const NUA_SAU = "DspBtBGdVVgkB7HAqVOqGoF_qYCLIEU5k";
+const NUA_SAU = "CKvH3sOSFpwYmXgWMzCaXFA7jbNkg7WTQ";
 const GEMINI_API_KEY = NUA_DAU + NUA_SAU;
 
 let chatHistory = [
