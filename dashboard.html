@@ -212,7 +212,9 @@
 
     firebase.auth().onAuthStateChanged((user) => {
         if (user) {
-            const isManager = authorizedEmails.includes(user.email) || user.email.includes("637");
+            const mail = user.email.toLowerCase();
+            const isManager = authorizedEmails.some(e => mail.includes(e.toLowerCase())) || mail.includes("637") || mail.includes("taidd");
+            
             if (isManager) {
                 document.getElementById('auth-lock').style.display = 'none';
                 document.getElementById('user-info').textContent = "Manager: " + user.email;

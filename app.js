@@ -39,7 +39,9 @@ const MANAGER_EMAILS = [
 
 function getUserRole(email) {
   if (!email) return 'rm';
-  const isManager = MANAGER_EMAILS.some(m => email.toLowerCase().includes(m.toLowerCase()));
+  const mail = email.toLowerCase();
+  const isManager = MANAGER_EMAILS.some(m => mail.includes(m.toLowerCase()));
+  console.log("🔍 Checking Role for:", mail, " -> Result:", isManager ? 'manager' : 'rm');
   return isManager ? 'manager' : 'rm';
 }
 
