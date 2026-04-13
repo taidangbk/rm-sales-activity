@@ -4,7 +4,7 @@
 console.log("🚀 app.js v2.1 loaded successfully!");
 
 // ========== RATES CONFIGURATION (FALLBACK + SYNC) ==========
-const RATES_WEBHOOK_URL = ""; // DÁN LINK GOOGLE SHEET LÃI SUẤT RIÊNG TẠI ĐÂY
+const RATES_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyNUktG4v80nEOT95WXhuw1WEFtHSIEJMXtTGVX59UCLtpMpN52zYlKp_8q7TE7EMwFcw/exec"; // GOOGLE SHEET LÃI SUẤT CHÍNH THỨC
 
 // Dữ liệu lãi suất chuẩn 06.04.2026 (Lưới bảo vệ khi chưa có Sheets)
 const DEFAULT_VIB_RATES = {
@@ -652,6 +652,14 @@ BẮT BUỘC trả lời theo format JSON (KHÔNG giải thích thêm):
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(sheetData)
       }).then(() => console.log('✅ Sheets sync OK'));
+
+      // 2. Sync to Firestore (Dành riêng cho Dashboard Quản trị)
+      db.collection('classifications').add({
+        ...sheetData,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        userId: currentUser ? currentUser.uid : 'anonymous',
+        userEmail: currentUser ? currentUser.email : ''
+      }).then(() => console.log('✅ Firestore classification sync OK'));
 
     } catch (e) { console.warn('⚠️ Sync failed:', e); }
     
