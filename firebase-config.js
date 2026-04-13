@@ -26,19 +26,3 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const googleProvider = new firebase.auth.GoogleAuthProvider();
-
-// ============================================================
-// CẤU HÌNH PHÂN QUYỀN
-// ============================================================
-// Thêm email Manager vào danh sách bên dưới
-const MANAGER_EMAILS = [
-  "taidd.business@gmail.com", // Email từ ảnh chụp màn hình
-  "dungductai637@gmail.com",  // SM Đặng Đức Tài
-  "hoaly@vib.com.vn",         // [Placeholder] SM Hoa Lý
-  "vanthach@vib.com.vn"       // [Placeholder] SM Văn Thạch
-];
-
-// Hàm kiểm tra quyền
-function getUserRole(email) {
-  return MANAGER_EMAILS.includes(email) ? 'manager' : 'rm';
-}
