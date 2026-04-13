@@ -100,19 +100,31 @@ async function handleGoogleLogin() {
   const btn = document.getElementById('btn-google-login');
   const errBox = document.getElementById('login-error');
   
-  btn.textContent = '⏳ Đang chuyển hướng...';
+  btn.textContent = '⏳ Đang kết nối...';
   btn.disabled = true;
   errBox.style.display = 'none';
   
   try {
-    // Sử dụng Redirect thay vì Popup để hỗ trợ tốt hơn trên Mobile & chặn popup firewall
-    await auth.signInWithRedirect(googleProvider);
+    // Thử lại bằng Popup để lấy ngay kết quả lỗi nếu có
+    const result = await auth.signInWithPopup(googleProvider);
+    console.log("Logged in user:", result.user.email);
   } catch (error) {
-    console.error('Login error:', error);
-    errBox.textContent = '❌ Lỗi hệ thống: ' + error.message;
-    errBox.style.display = 'block';
+    console.error('Login error details:', error);
     btn.innerHTML = 'Đăng nhập bằng Google';
     btn.disabled = false;
+    
+    // Hiện mã lỗi cụ thể để Leader và AI cùng phân tích
+    let userMsg = "❌ Lỗi: " + error.code;
+    if (error.code === 'auth/unauthorized-domain') {
+       userMsg = "❌ Lỗi: Tên miền này chưa được cấp phép trong Firebase!";
+    } else if (error.code === 'auth/network-request-failed') {
+       userMsg = "❌ Lỗi: Mạng của bạn đang chặn kết nối Google!";
+    } else if (error.code === 'auth/popup-blocked') {
+       userMsg = "❌ Lỗi: Trình duyệt đang chặn cửa sổ Pop-up!";
+    }
+    
+    errBox.innerHTML = `${userMsg}<br><small style="font-size:9px">${error.message}</small>`;
+    errBox.style.display = 'block';
   }
 }
 
