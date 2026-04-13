@@ -47,6 +47,18 @@ function getUserRole(email) {
 }
 
 // Kiểm tra trạng thái đăng nhập
+firebase.auth().getRedirectResult().catch((error) => {
+  console.error("Redirect Error:", error);
+  const errBox = document.getElementById('login-error');
+  const btn = document.getElementById('btn-google-login');
+  if (errBox && btn) {
+    btn.innerHTML = 'Đăng nhập bằng Google';
+    btn.disabled = false;
+    errBox.innerHTML = `❌ Lỗi chuyển hướng: ${error.message}`;
+    errBox.style.display = 'block';
+  }
+});
+
 auth.onAuthStateChanged((user) => {
   if (user) {
     currentUser = user;
@@ -58,7 +70,6 @@ auth.onAuthStateChanged((user) => {
     showLoginScreen();
   }
 });
-
 function showLoginScreen() {
   document.getElementById('login-overlay').classList.remove('hidden');
   document.getElementById('app').style.display = 'none';
