@@ -5,6 +5,7 @@ console.log("🚀 app.js v2.1 loaded successfully!");
 
 // ========== RATES CONFIGURATION (FALLBACK + SYNC) ==========
 const RATES_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz1qc9P9ZXBnyceaYrCH7a0kXSSg4eCh8zFKjM9GIPz8IWXgIiz51Q1-9pjORpskF6Oyg/exec"; // GOOGLE SHEET LÃI SUẤT CHÍNH THỨC
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxf6wl3ul9msvz0KhBkG6XkstTmgCI8DD0OeJGRa6_cXtMsLWQeST-QE9A60MJh6Swo/exec"; // BẢN LƯU DỮ LIỆU ĐA CHIỀU (V2.35)
 
 // Dữ liệu lãi suất chuẩn 06.04.2026 (Lưới bảo vệ khi chưa có Sheets)
 const DEFAULT_VIB_RATES = {
@@ -79,13 +80,16 @@ function onLoginSuccess(user) {
   document.getElementById('menu-user-name').textContent = user.displayName || 'RM';
   document.getElementById('menu-user-email').textContent = user.email;
   
-  // Update role badge
   const roleBadge = document.getElementById('header-role-badge');
+  const mgrBtn = document.getElementById('btn-mgr-dashboard');
+  
   if (currentRole === 'manager') {
     roleBadge.innerHTML = '👑 Manager — VIB Credit Team';
     roleBadge.style.color = '#e8c96a';
+    if(mgrBtn) mgrBtn.style.display = 'block';
   } else {
     roleBadge.textContent = 'VIB Credit Team';
+    if(mgrBtn) mgrBtn.style.display = 'none';
   }
   
   // Init app features
@@ -100,33 +104,21 @@ async function handleGoogleLogin() {
   const btn = document.getElementById('btn-google-login');
   const errBox = document.getElementById('login-error');
   
-  btn.textContent = '⏳ Đang kết nối...';
+  btn.textContent = '⏳ Đang chuyển hướng...';
   btn.disabled = true;
   errBox.style.display = 'none';
   
   try {
-    // Thử lại bằng Popup để lấy ngay kết quả lỗi nếu có
-    const result = await auth.signInWithPopup(googleProvider);
-    console.log("Logged in user:", result.user.email);
+    // CHỐT HẠ: Dùng Redirect để đảm bảo 100% không bị chặn trên điện thoại RM
+    await auth.signInWithRedirect(googleProvider);
   } catch (error) {
     console.error('Login error details:', error);
     btn.innerHTML = 'Đăng nhập bằng Google';
     btn.disabled = false;
-    
-    // Hiện mã lỗi cụ thể để Leader và AI cùng phân tích
-    let userMsg = "❌ Lỗi: " + error.code;
-    if (error.code === 'auth/unauthorized-domain') {
-       userMsg = "❌ Lỗi: Tên miền này chưa được cấp phép trong Firebase!";
-    } else if (error.code === 'auth/network-request-failed') {
-       userMsg = "❌ Lỗi: Mạng của bạn đang chặn kết nối Google!";
-    } else if (error.code === 'auth/popup-blocked') {
-       userMsg = "❌ Lỗi: Trình duyệt đang chặn cửa sổ Pop-up!";
-    }
-    
-    errBox.innerHTML = `${userMsg}<br><small style="font-size:9px">${error.message}</small>`;
+    errBox.innerHTML = `❌ Lỗi: ${error.message}`;
     errBox.style.display = 'block';
   }
-}
+}    
 
 function handleLogout() {
   auth.signOut();
@@ -452,7 +444,6 @@ function toggleLendingFields(product) {
 }
 
 // ========== DUAL-SYNC DIARY SUBMIT ==========
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxWIWwxSnR1-X3HaLbKYhO0_7pdtrv1aYJkCaFX0x56wkVhpgM5KcQ2bmkXJXjS9KpA/exec";
 
 function submitDiary() {
   const sm = document.getElementById('diary-sm').value;
@@ -629,28 +620,31 @@ BẮT BUỘC trả lời theo format JSON (KHÔNG giải thích thêm):
   "insight": "Phân tích chiến lược (2 câu). Sử dụng ngôn ngữ sang trọng, đời thường. Nhấn mạnh vào giá trị phù hợp với vị thế khách.",
   "hagtActions": ["Việc 1 cần làm ngay", "Việc 2 cần làm ngay", "Việc 3 cần làm ngay"],
   "script60s": "Kịch bản gọi điện cá nhân hóa phù hợp phong cách ${style}, dùng ngôn từ đẳng cấp.",
-  "objections": [{"q": "Câu hỏi từ chối", "a": "Giải đáp tinh tế, xoáy vào giải pháp thực tế"}],
-  "zaloMessage": "Tin nhắn Zalo ngắn gọn, lịch thiệp, tôn trọng khách."
-}`;
+  "priority": "HOT" hoặc "WARM" hoặc "COLD",
+  "main_need": "Nhu cầu cốt lõi nhất (dưới 10 từ)",
+  "barrier": "Rào cản/Nỗi sợ lớn nhất của khách (dưới 10 từ)",
+  "pains": ["Nỗi đau 1", "Nỗi đau 2", "Nỗi đau 3"],
+  "insight": "Phân tích đặc điểm hành vi và tâm lý khách hàng (khoảng 30-50 từ)",
+  "vib_solution": "Gợi ý gói vay hoặc cách tiếp cận chốt sale của VIB (khoảng 30 từ)"
+}
+
+LƯU Ý: Dựa trên kiến thức ngân hàng chuyên nghiệp và đặc thù khách hàng VIB (Nhanh, Hiệu quả, Hiện đại).`;
 
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7 }
-      })
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
     });
+
+    const data = await response.json();
+    let textResult = data.candidates[0].content.parts[0].text;
     
-    const data = await res.json();
-    
-    if (data.error) throw new Error(data.error.message);
-    
-    let rawText = data.candidates[0].content.parts[0].text;
-    rawText = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    
-    const result = JSON.parse(rawText);
+    // Xử lý nếu AI trả về code block JSON
+    textResult = textResult.replace(/```json|```/g, "").trim();
+    const result = JSON.parse(textResult);
+
+    // Hiển thị giao diện mới chuyên nghiệp
     renderClassifyResult(result, name);
     
     // 🔥 DUAL-SYNC: Firestore & Google Sheets
@@ -668,22 +662,20 @@ BẮT BUỘC trả lời theo format JSON (KHÔNG giải thích thêm):
       const sheetData = {
         destination: "ai_leads",
         date: new Date().toLocaleDateString('vi-VN') + ' ' + new Date().toLocaleTimeString('vi-VN'),
-        sm: currentUser ? (currentUser.displayName || 'RM') : 'RM',
-        rm: currentUser ? (currentUser.displayName || 'RM') : 'RM',
         customer: name,
-        type: 'AI_2026_STRATEGY',
-        product: job,
-        method: source,
-        result: `${result.classification}: ${result.insight}`,
-        amount: priority,
-        progress: style
+        phone: phone || "—",
+        email: email || "—",
+        zalo: `https://zalo.me/${phone}`,
+        leadType: job,
+        rm: currentUser ? (currentUser.displayName || 'RM') : 'RM',
+        aiResult: `${result.classification}: ${result.insight}`
       };
       
       fetch(WEBHOOK_URL, {
         method: 'POST', mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(sheetData)
-      }).then(() => console.log('✅ Sheets sync OK'));
+      }).then(() => console.log('✅ AI leads sync OK'));
 
       // 2. Sync to Firestore (Dành riêng cho Dashboard Quản trị)
       db.collection('classifications').add({
