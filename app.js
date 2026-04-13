@@ -3,7 +3,29 @@
 // ============================================================
 console.log("🚀 app.js v2.1 loaded successfully!");
 
-// ========== FIREBASE AUTH STATE MANAGEMENT ==========
+// ========== RATES CONFIGURATION (FALLBACK + SYNC) ==========
+const RATES_WEBHOOK_URL = ""; // DÁN LINK GOOGLE SHEET LÃI SUẤT RIÊNG TẠI ĐÂY
+
+// Dữ liệu lãi suất chuẩn 06.04.2026 (Lưới bảo vệ khi chưa có Sheets)
+const DEFAULT_VIB_RATES = {
+  bds_fix: [
+    { bank: "VIB", package: "06 tháng", rate: 9.5, note: "LSCS 9.9%" },
+    { bank: "VIB", package: "12 tháng", rate: 10.5, note: "Biên độ 3%" },
+    { bank: "VIB", package: "18 tháng", rate: 11.5, note: "Biên độ 3%" },
+    { bank: "VIB", package: "24 tháng", rate: 12.0, note: "Cố định dài" }
+  ],
+  bds_float: [
+    { bank: "VIB", package: "Thả nổi ngay", rate: "LSCS + 2.5%", note: "Phí phạt 0%" }
+  ],
+  sme_business: [
+    { bank: "VIB", package: "Thấu chi SME", rate: 10.5, note: "Campaign 08.04" },
+    { bank: "VIB", package: "Vay KD 12T", rate: 11.9, note: "Phí phạt 0%" }
+  ]
+};
+
+let currentVibRates = DEFAULT_VIB_RATES; // Biến dùng chung toàn App
+
+// ========== FIREBASE AUTH STUFF ==========
 let currentUser = null;
 let currentRole = 'rm'; // 'rm' or 'manager'
 
@@ -555,28 +577,29 @@ async function classifyCustomer() {
   document.getElementById('cls-badge').textContent = '⏳ Đang phân tích...';
   document.getElementById('cls-insight').textContent = '—';
   
-  const prompt = `Bạn là chuyên gia phân loại khách hàng tín dụng ngân hàng VIB.
-Vui lòng phân loại dựa trên phong cách của khách hàng.
+  const prompt = `Bạn là SIÊU TRỢ LÝ AI (Agentic AI) của VIB theo khung năng lực HAGT.
+Nhiệm vụ: Phân loại khách hàng và đưa ra lời khuyên hành động dựa trên CHIẾN LƯỢC VIB 2026.
+
+QUY TẮC NGÔN NGỮ (LANGUAGE STYLE GUIDE):
+1. TUYỆT ĐỐI KHÔNG dùng các từ jargon như "Exclusive", "HAGT", "Dynamic", "Unique" trong Insight và Kịch bản. 
+2. PHÂN KHÚC PRIVILEGE (Khách VIP): Dùng ngôn ngữ "Elite", tinh tế, lịch sự. Gọi khách bằng "vị thế chủ nhân", "đặc quyền dành riêng", "thiết kế sắc sảo theo nhu cầu cá nhân". Tập trung vào "Sự tận tâm" và "Quy trình ưu tiên".
+3. PHÂN KHÚC SME (Chủ doanh nghiệp/Hộ KD): Dùng ngôn ngữ hiệu quả, quyết đoán. Nói về "Gia tăng lợi thế cạnh tranh", "Tối ưu dòng tiền", "Nguồn vốn linh hoạt chớp thời cơ".
+4. CÁC PHÂN KHÚC KHÁC: Thân thiện, nhanh gọn, chuyên nghiệp.
 
 Thông tin khách hàng:
-- Họ tên: ${name}
-- Nghề nghiệp: ${job}
-- Nhu cầu: ${need}
-- Ưu tiên: ${priority}
-- Phong cách: ${style}
-- Số lần liên hệ: ${contactCount}
-- Phản ứng: ${reaction}
-- Thu nhập: ${income}
-- Ghi chú: ${note}
+- Họ tên: ${name} | Nghề nghiệp: ${job} | Nhu cầu: ${need}
+- Ưu tiên: ${priority} | Phong cách: ${style} | Thu nhập: ${income}
+- Phản ứng: ${reaction} | Ghi chú: ${note}
 
 BẮT BUỘC trả lời theo format JSON (KHÔNG giải thích thêm):
 {
-  "classification": "HOT" hoặc "WARM" hoặc "COLD" hoặc "POTENTIAL",
-  "confidence": số từ 60-99,
-  "insight": "Phân tích 2-3 câu dựa trên PHONG CÁCH ${style} và ƯU TIÊN ${priority}",
-  "script60s": "Kịch bản gọi điện cá nhân hóa phù hợp phong cách ${style}",
-  "objections": [{"q": "Tình huống 1", "a": "Cách xử lý"}],
-  "zaloMessage": "Tin nhắn Zalo phù hợp"
+  "classification": "HOT" | "WARM" | "COLD" | "POTENTIAL",
+  "confidence": số từ 60-99 (Chỉ số sẵn sàng bứt tốc),
+  "insight": "Phân tích chiến lược (2 câu). Sử dụng ngôn ngữ sang trọng, đời thường. Nhấn mạnh vào giá trị phù hợp với vị thế khách.",
+  "hagtActions": ["Việc 1 cần làm ngay", "Việc 2 cần làm ngay", "Việc 3 cần làm ngay"],
+  "script60s": "Kịch bản gọi điện cá nhân hóa phù hợp phong cách ${style}, dùng ngôn từ đẳng cấp.",
+  "objections": [{"q": "Câu hỏi từ chối", "a": "Giải đáp tinh tế, xoáy vào giải pháp thực tế"}],
+  "zaloMessage": "Tin nhắn Zalo ngắn gọn, lịch thiệp, tôn trọng khách."
 }`;
 
   try {
@@ -591,12 +614,9 @@ BẮT BUỘC trả lời theo format JSON (KHÔNG giải thích thêm):
     
     const data = await res.json();
     
-    if (data.error) {
-      throw new Error(data.error.message);
-    }
+    if (data.error) throw new Error(data.error.message);
     
     let rawText = data.candidates[0].content.parts[0].text;
-    // Clean markdown code fences if any
     rawText = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     
     const result = JSON.parse(rawText);
@@ -604,7 +624,6 @@ BẮT BUỘC trả lời theo format JSON (KHÔNG giải thích thêm):
     
     // 🔥 DUAL-SYNC: Firestore & Google Sheets
     try {
-      // 1. Lưu Firestore (CRM)
       const customerData = {
         name, phone, email, job, need, source, priority, style,
         contactCount, reaction, income, note,
@@ -615,20 +634,17 @@ BẮT BUỘC trả lời theo format JSON (KHÔNG giải thích thêm):
       };
       db.collection('customers').add(customerData);
 
-      // 2. Sync sang Google Sheets
       const sheetData = {
         date: new Date().toLocaleDateString('vi-VN') + ' ' + new Date().toLocaleTimeString('vi-VN'),
         sm: currentUser ? (currentUser.displayName || 'RM') : 'RM',
         rm: currentUser ? (currentUser.displayName || 'RM') : 'RM',
-        customer: name,          // Tên khách -> Cột D
-        type: 'AI_CLASSIFY',     // Loại -> Cột E
-        product: job,            // Nghề nghiệp -> Cột F
-        method: source,          // Nguồn -> Cột G
-        result: `${result.classification}: ${result.insight}`, // Kết quả -> Cột H
-        amount: priority,        // Ưu tiên -> Cột I
-        progress: style,         // Phong cách -> Cột J
-        phone: phone,            // (Sẽ lưu ngầm nếu sheet có cột)
-        email: email             // (Sẽ lưu ngầm nếu sheet có cột)
+        customer: name,
+        type: 'AI_2026_STRATEGY',
+        product: job,
+        method: source,
+        result: `${result.classification}: ${result.insight}`,
+        amount: priority,
+        progress: style
       };
       
       fetch(WEBHOOK_URL, {
@@ -642,7 +658,6 @@ BẮT BUỘC trả lời theo format JSON (KHÔNG giải thích thêm):
   } catch (err) {
     console.error('Classification error:', err);
     document.getElementById('cls-badge').textContent = '❌ Lỗi phân tích';
-    document.getElementById('cls-insight').textContent = 'Không thể phân tích. Vui lòng thử lại. Lỗi: ' + err.message;
   }
   
   btn.textContent = '🤖 PHÂN LOẠI & TẠO KỊCH BẢN';
@@ -650,24 +665,33 @@ BẮT BUỘC trả lời theo format JSON (KHÔNG giải thích thêm):
 }
 
 function renderClassifyResult(result, name) {
-  // Badge
   const badge = document.getElementById('cls-badge');
   const cls = (result.classification || 'WARM').toUpperCase();
   const clsLabels = { HOT: '🔥 HOT', WARM: '🌤️ WARM', COLD: '❄️ COLD', POTENTIAL: '🌱 TIỀM NĂNG' };
   badge.textContent = (clsLabels[cls] || cls) + ' — ' + name;
   badge.className = 'classify-badge ' + cls.toLowerCase();
   
-  // Confidence
   const conf = result.confidence || 75;
-  document.getElementById('cls-confidence').textContent = conf + '%';
+  document.getElementById('cls-confidence').textContent = conf + '% HAGT';
   const bar = document.getElementById('cls-confidence-bar');
   bar.style.width = conf + '%';
-  bar.style.background = conf >= 80 ? 'var(--green)' : conf >= 60 ? 'var(--gold2)' : 'var(--red)';
+  bar.style.background = conf >= 85 ? 'var(--gold2)' : conf >= 70 ? 'var(--vib-orange)' : 'var(--red)';
   
-  // Insight
+  // Strategy Card
   document.getElementById('cls-insight').textContent = result.insight || '—';
   
-  // Script
+  // HAGT Card
+  const hagtList = document.getElementById('hagt-list-items');
+  if (result.hagtActions && result.hagtActions.length > 0) {
+    hagtList.innerHTML = result.hagtActions.map(a => `<li>${a}</li>`).join('');
+  } else {
+    hagtList.innerHTML = '<li>Đang cập nhật lộ trình...</li>';
+  }
+  
+  // Zalo Card
+  document.getElementById('cls-zalo').textContent = result.zaloMessage || '—';
+  
+  // Detailed Scripts
   document.getElementById('cls-script').textContent = result.script60s || '—';
   
   // Objections
@@ -680,10 +704,8 @@ function renderClassifyResult(result, name) {
       </div>`
     ).join('');
   }
-  
-  // Zalo message
-  document.getElementById('cls-zalo').textContent = result.zaloMessage || '—';
 }
+
 
 // ========== RATES & CALCULATOR ==========
 function showRateTab(btn, tabId) {
@@ -693,50 +715,76 @@ function showRateTab(btn, tabId) {
   document.getElementById(tabId).classList.add('active');
 }
 
-const defaultRates = [
-  { bank: "VIB", house: 6.5, car: 7.5 },
-  { bank: "MB", house: 6.8, car: 8.0 },
-  { bank: "ACB", house: 7.0, car: 8.5 },
-  { bank: "OCB", house: 6.5, car: 7.9 },
-  { bank: "VPB", house: 6.9, car: 8.5 },
-  { bank: "HDB", house: 7.5, car: 8.9 },
-  { bank: "TPB", house: 6.8, car: 8.2 },
+// Dữ liệu so sánh bank (Sẽ được ghi đè nếu Sheet có dữ liệu)
+let competitorRates = [
+  { bank: "Vietcombank", house: 6.0, car: 7.2 },
+  { bank: "VietinBank", house: 5.8, car: 7.5 },
+  { bank: "Agribank", house: 6.0, car: 7.0 },
   { bank: "BIDV", house: 6.0, car: 7.5 },
-  { bank: "Eximbank", house: 6.5, car: 8.0 },
-  { bank: "LPBank", house: 7.2, car: 8.5 },
-  { bank: "MSB", house: 6.8, car: 8.5 }
+  { bank: "Techcombank", house: 6.5, car: 8.5 },
+  { bank: "MBBank", house: 6.8, car: 8.0 }
 ];
 
 async function fetchRates() {
   const statusEl = document.getElementById('rate-sync-status');
   if (!statusEl) return;
-  statusEl.textContent = 'Đang đồng bộ... ⏳';
-  statusEl.style.color = 'var(--gold2)';
   
-  setTimeout(() => {
-    renderRateTables(defaultRates);
-    statusEl.textContent = 'Đã đồng bộ từ Google Sheets ✅';
-    statusEl.style.color = 'var(--green)';
-  }, 800);
+  statusEl.textContent = 'Đang kiểm tra dữ liệu live... 🔄';
+  statusEl.style.color = 'var(--gold2)';
+
+  if (!RATES_WEBHOOK_URL) {
+    console.log("ℹ️ No Rates Webhook set, using Fallback Data.");
+    renderRateTables();
+    statusEl.textContent = 'Đang dùng dữ liệu 2026 (Offline) 🏠';
+    return;
+  }
+
+  try {
+    const res = await fetch(RATES_WEBHOOK_URL);
+    const data = await res.json();
+    if (data && data.vib_rates) {
+      currentVibRates = data.vib_rates;
+      if (data.competitors) competitorRates = data.competitors;
+      statusEl.textContent = 'Đã đồng bộ từ Google Sheets ✅';
+      statusEl.style.color = 'var(--green)';
+    }
+  } catch (error) {
+    console.warn("⚠️ Không thể kết nối Sheets Lãi suất, dùng Fallback.");
+    statusEl.textContent = 'Dữ liệu dự phòng 2026 (Mất kết nối) 🏠';
+  }
+  
+  renderRateTables();
 }
 
-function renderRateTables(rates) {
+function renderRateTables() {
   const tHouse = document.getElementById('table-rates-house');
   const tCar = document.getElementById('table-rates-car');
-  if (!tHouse || !tCar) return;
+  if (!tHouse) return;
   
-  tHouse.innerHTML = '<tr><th>Ngân Hàng</th><th>Lãi Ưu Đãi</th><th>Biên độ</th></tr>';
-  tCar.innerHTML = '<tr><th>Ngân Hàng</th><th>Lãi Ưu Đãi</th><th>Tài trợ</th></tr>';
+  // 1. Render Bảng VIB (Chi tiết Package)
+  tHouse.innerHTML = `<tr style="background:var(--bg3)"><th colspan="3" style="color:var(--vib-orange);text-align:center">🔥 GÓI VAY VIB ƯU VIỆT (CẬP NHẬT 06.04)</th></tr>
+                      <tr><th>Gói cố định</th><th>Lãi suất</th><th>Ghi chú</th></tr>`;
   
-  rates.forEach(r => {
-    const isVIB = r.bank === "VIB";
-    const bankHtml = isVIB ? `<b style="color:var(--vib-blue)">VIB</b>` : `<b>${r.bank}</b>`;
-    const houseHtml = isVIB ? `<b style="color:var(--red)">${r.house}%</b>` : `${r.house}%`;
-    const carHtml = isVIB ? `<b style="color:var(--red)">${r.car}%</b>` : `${r.car}%`;
-    
-    tHouse.innerHTML += `<tr><td>${bankHtml}</td><td>${houseHtml}</td><td>CSTK + 3.0%</td></tr>`;
-    tCar.innerHTML += `<tr><td>${bankHtml}</td><td>${carHtml}</td><td>80%</td></tr>`;
+  currentVibRates.bds_fix.forEach(r => {
+    tHouse.innerHTML += `<tr>
+      <td><b style="color:var(--vib-blue)">${r.package}</b></td>
+      <td><b style="color:var(--red)">${r.rate}%</b></td>
+      <td style="font-size:10px;color:var(--dim)">${r.note}</td>
+    </tr>`;
   });
+
+  // 2. Render SME Campaigns
+  if (tCar) {
+    tCar.innerHTML = `<tr style="background:var(--bg3)"><th colspan="3" style="color:var(--vib-orange);text-align:center">🚀 CHIẾN DỊCH SME - VAY KINH DOANH</th></tr>
+                      <tr><th>Loại hình</th><th>Lãi suất</th><th>Đặc quyền</th></tr>`;
+    currentVibRates.sme_business.forEach(r => {
+      tCar.innerHTML += `<tr>
+        <td><b>${r.package}</b></td>
+        <td><b style="color:var(--green)">${r.rate}%</b></td>
+        <td style="font-size:10px;color:var(--dim)">${r.note}</td>
+      </tr>`;
+    });
+  }
 }
 
 function formatCurrency(input) {

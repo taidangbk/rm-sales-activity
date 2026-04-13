@@ -259,3 +259,113 @@ select.ai-input{min-height:auto;cursor:pointer}
   .page-title{font-size:28px}
   .quick-grid{grid-template-columns:repeat(7,1fr)}
 }
+
+/* ========== VIB 2026 STRATEGY CARDS ========== */
+.strategy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.strat-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.strat-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255,255,255,0.15);
+}
+
+.strat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.strat-icon {
+  font-size: 18px;
+}
+
+.strat-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--dim);
+}
+
+.strat-body {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+/* Specific Styles for 2026 Domains */
+.privilege-style {
+  border-left: 3px solid var(--gold2);
+  background: linear-gradient(135deg, rgba(232,201,106,0.05) 0%, transparent 100%);
+}
+.privilege-style .strat-label { color: var(--gold2); }
+
+.hagt-style {
+  border-left: 3px solid var(--vib-orange);
+  background: linear-gradient(135deg, rgba(243,112,33,0.05) 0%, transparent 100%);
+}
+.hagt-style .strat-label { color: var(--vib-orange); }
+
+.script-style {
+  border-left: 3px solid var(--blue);
+  background: linear-gradient(135deg, rgba(74,158,255,0.05) 0%, transparent 100%);
+}
+.script-style .strat-label { color: var(--blue); }
+
+.hagt-list {
+  list-style: none;
+  padding: 0;
+}
+
+.hagt-list li {
+  position: relative;
+  padding-left: 18px;
+  margin-bottom: 6px;
+  font-size: 11px;
+}
+
+.hagt-list li::before {
+  content: '⚡';
+  position: absolute;
+  left: 0;
+  font-size: 10px;
+}
+
+.mini-script {
+  font-style: italic;
+  font-size: 11px;
+  color: var(--dim);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.copy-btn.mini {
+  padding: 4px 8px;
+  font-size: 10px;
+  margin-top: 0;
+}
+
+.objection-container {
+  display: grid;
+  gap: 8px;
+}

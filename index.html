@@ -376,39 +376,66 @@
         </button>
       </div>
 
-      <!-- AI Result Area -->
-      <div id="classify-result" class="ai-card classify-result" style="display:none;border-color:var(--vib-orange);padding:20px">
-        <div style="text-align:center;margin-bottom:16px">
+      <!-- AI Result Area (REVISED 2026) -->
+      <div id="classify-result" class="ai-card classify-result" style="display:none;border-color:var(--vib-orange);padding:20px;background:linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%)">
+        <div style="text-align:center;margin-bottom:20px">
           <div class="classify-badge" id="cls-badge">⏳ Đang phân tích...</div>
-          <div style="margin-top:10px">
-            <span style="font-size:11px;color:var(--dim)">Độ tin cậy: </span>
-            <span id="cls-confidence" style="font-size:13px;font-weight:800;color:var(--bright)">—</span>
+          <div style="margin-top:12px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <span style="font-size:11px;color:var(--dim)">Chỉ số HAGT: </span>
+            <span id="cls-confidence" style="font-size:14px;font-weight:800;color:var(--gold2)">—</span>
           </div>
-          <div class="confidence-bar" style="max-width:200px;margin:8px auto 0">
-            <div class="confidence-fill" id="cls-confidence-bar" style="width:0%;background:var(--green)"></div>
+          <div class="confidence-bar" style="max-width:250px;margin:10px auto 0; height: 6px;">
+            <div class="confidence-fill" id="cls-confidence-bar" style="width:0%;background:var(--gold2); box-shadow: 0 0 10px var(--gold)"></div>
           </div>
         </div>
 
-        <div class="classify-section" id="cls-insight-box">
-          <div class="classify-section-title">💡 INSIGHT</div>
-          <div class="classify-script" id="cls-insight">—</div>
+        <!-- 3-Card Grid for 2026 Strategy -->
+        <div class="strategy-grid">
+          <!-- CARD 1: CHIẾN LƯỢC TẬP TRUNG -->
+          <div class="strat-card privilege-style">
+            <div class="strat-header">
+              <span class="strat-icon">💎</span>
+              <span class="strat-label">ĐỊNH VỊ 2026</span>
+            </div>
+            <div class="strat-body" id="cls-insight">Phân tích phân khúc và giá trị cốt lõi...</div>
+          </div>
+
+          <!-- CARD 2: LỘ TRÌNH HÀNH ĐỘNG (GNM) -->
+          <div class="strat-card hagt-style">
+            <div class="strat-header">
+              <span class="strat-icon">⚡</span>
+              <span class="strat-label">LỘ TRÌNH HAGT</span>
+            </div>
+            <div class="strat-body" id="cls-hagt-actions">
+               <ul class="hagt-list" id="hagt-list-items">
+                 <li>Đang xác định ưu tiên...</li>
+               </ul>
+            </div>
+          </div>
+
+          <!-- CARD 3: THÔNG ĐIỆP CHỐT DEAL -->
+          <div class="strat-card script-style">
+            <div class="strat-header">
+              <span class="strat-icon">💬</span>
+              <span class="strat-label">THÔNG ĐIỆP "LÀM CHỦ"</span>
+            </div>
+            <div class="strat-body">
+              <div id="cls-zalo" class="mini-script">—</div>
+              <button class="copy-btn mini" onclick="copyElText('cls-zalo')">📋 Copy Zalo</button>
+            </div>
+          </div>
         </div>
 
-        <div class="classify-section" id="cls-script-box">
-          <div class="classify-section-title">📞 KỊCH BẢN MỞ ĐẦU (60s)</div>
-          <div class="classify-script" id="cls-script">—</div>
+        <!-- Detailed Scripts & Objections (Expandable) -->
+        <div class="classify-section" style="margin-top:20px; border-top:1px solid var(--border); padding-top:15px">
+          <div class="classify-section-title" style="color:var(--vib-blue)">📞 KỊCH BẢN GỌI ĐIỆN CÁ NHÂN HÓA</div>
+          <div class="classify-script" id="cls-script" style="background:var(--bg3); border-left:3px solid var(--vib-blue)">—</div>
           <button class="copy-btn" onclick="copyElText('cls-script')">📋 Copy kịch bản</button>
         </div>
 
-        <div class="classify-section" id="cls-objections-box">
-          <div class="classify-section-title">🛡️ TOP 3 TỪ CHỐI DỰ KIẾN</div>
-          <div id="cls-objections">—</div>
-        </div>
-
-        <div class="classify-section" id="cls-zalo-box">
-          <div class="classify-section-title">💬 TIN NHẮN ZALO FOLLOW-UP</div>
-          <div class="classify-script" id="cls-zalo">—</div>
-          <button class="copy-btn" onclick="copyElText('cls-zalo')">📋 Copy tin nhắn</button>
+        <div class="classify-section">
+          <div class="classify-section-title" style="color:var(--red)">🛡️ XỬ LÝ TỪ CHỐI (REAL-TIME ADVICE)</div>
+          <div id="cls-objections" class="objection-container">—</div>
         </div>
       </div>
     </div>
