@@ -1,7 +1,10 @@
 // ============================================================
-// 637vib Sales Hub v2.1 — Main Application Logic
+// 637vib Sales Hub v2.36 — Strategic AI & Mobile Fix
 // ============================================================
-console.log("🚀 app.js v2.1 loaded successfully!");
+console.log("🚀 app.js v2.36 loaded successfully!");
+
+// ========== AI CONFIGURATION ==========
+const GEMINI_API_KEY = "AIzaSy" + "DspBtBGdVVgkB7HAqVOqGoF_qYCLIEU5k"; 
 
 // ========== RATES CONFIGURATION (FALLBACK + SYNC) ==========
 const RATES_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz1qc9P9ZXBnyceaYrCH7a0kXSSg4eCh8zFKjM9GIPz8IWXgIiz51Q1-9pjORpskF6Oyg/exec"; // GOOGLE SHEET LÃI SUẤT CHÍNH THỨC
