@@ -1,7 +1,7 @@
 // ============================================================
-// 637vib Sales Hub v2.36 — Strategic AI & Mobile Fix
+// 637vib Sales Hub v2.37 — Final Stable AI & Mobile Fix
 // ============================================================
-console.log("🚀 app.js v2.36 loaded successfully!");
+console.log("🚀 app.js v2.37 loaded successfully!");
 
 // ========== AI CONFIGURATION ==========
 const GEMINI_API_KEY = "AIzaSy" + "DspBtBGdVVgkB7HAqVOqGoF_qYCLIEU5k"; 
