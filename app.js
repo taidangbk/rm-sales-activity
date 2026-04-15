@@ -4,7 +4,7 @@
 console.log("🚀 app.js v2.1 loaded successfully!");
 
 // ========== RATES CONFIGURATION (FALLBACK + SYNC) ==========
-const RATES_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz1qc9P9ZXBnyceaYrCH7a0kXSSg4eCh8zFKjM9GIPz8IWXgIiz51Q1-9pjORpskF6Oyg/exec"; // GOOGLE SHEET LÃI SUẤT CHÍNH THỨC
+const RATES_WEBHOOK_URL = ""; // DÁN LINK GOOGLE SHEET LÃI SUẤT RIÊNG TẠI ĐÂY
 
 // Dữ liệu lãi suất chuẩn 06.04.2026 (Lưới bảo vệ khi chưa có Sheets)
 const DEFAULT_VIB_RATES = {
@@ -28,22 +28,6 @@ let currentVibRates = DEFAULT_VIB_RATES; // Biến dùng chung toàn App
 // ========== FIREBASE AUTH STUFF ==========
 let currentUser = null;
 let currentRole = 'rm'; // 'rm' or 'manager'
-
-// Danh sách Email được quyền Quản trị (Chỉ huy)
-const MANAGER_EMAILS = [
-  "admin@637vib.online", 
-  "hongthach0608@gmail.com", 
-  "taidd.business@gmail.com", // Đã thêm email của bạn
-  "SME637"
-];
-
-function getUserRole(email) {
-  if (!email) return 'rm';
-  const mail = email.toLowerCase();
-  const isManager = MANAGER_EMAILS.some(m => mail.includes(m.toLowerCase()));
-  console.log("🔍 Checking Role for:", mail, " -> Result:", isManager ? 'manager' : 'rm');
-  return isManager ? 'manager' : 'rm';
-}
 
 // Kiểm tra trạng thái đăng nhập
 auth.onAuthStateChanged((user) => {
@@ -438,7 +422,7 @@ function toggleLendingFields(product) {
 }
 
 // ========== DUAL-SYNC DIARY SUBMIT ==========
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxWIWwxSnR1-X3HaLbKYhO0_7pdtrv1aYJkCaFX0x56wkVhpgM5KcQ2bmkXJXjS9KpA/exec";
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw1AylrPblweLRT_GefAA5k4TleynAqmmv0VawqGwj4QTyRaQqWrOe9VWinyeZmF_t0/exec";
 
 function submitDiary() {
   const sm = document.getElementById('diary-sm').value;
@@ -462,7 +446,6 @@ function submitDiary() {
   const timestamp = new Date().toLocaleDateString('vi-VN') + ' ' + new Date().toLocaleTimeString('vi-VN');
   
   const payload = {
-    destination: "nhat_ky",
     date: timestamp,
     sm: sm,
     rm: rm,
@@ -652,7 +635,6 @@ BẮT BUỘC trả lời theo format JSON (KHÔNG giải thích thêm):
       db.collection('customers').add(customerData);
 
       const sheetData = {
-        destination: "ai_leads",
         date: new Date().toLocaleDateString('vi-VN') + ' ' + new Date().toLocaleTimeString('vi-VN'),
         sm: currentUser ? (currentUser.displayName || 'RM') : 'RM',
         rm: currentUser ? (currentUser.displayName || 'RM') : 'RM',
@@ -670,14 +652,6 @@ BẮT BUỘC trả lời theo format JSON (KHÔNG giải thích thêm):
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(sheetData)
       }).then(() => console.log('✅ Sheets sync OK'));
-
-      // 2. Sync to Firestore (Dành riêng cho Dashboard Quản trị)
-      db.collection('classifications').add({
-        ...sheetData,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        userId: currentUser ? currentUser.uid : 'anonymous',
-        userEmail: currentUser ? currentUser.email : ''
-      }).then(() => console.log('✅ Firestore classification sync OK'));
 
     } catch (e) { console.warn('⚠️ Sync failed:', e); }
     
@@ -784,33 +758,32 @@ async function fetchRates() {
 
 function renderRateTables() {
   const tHouse = document.getElementById('table-rates-house');
-  const tSme = document.getElementById('table-rates-car');
+  const tCar = document.getElementById('table-rates-car');
   if (!tHouse) return;
   
-  // 1. Render Bảng BĐS
-  tHouse.innerHTML = `<tr><th>Gói vay</th><th>Lãi suất</th><th>Đặc quyền / Ghi chú</th></tr>`;
-  if (currentVibRates.bds_fix && currentVibRates.bds_fix.length > 0) {
-    currentVibRates.bds_fix.forEach(r => {
-      tHouse.innerHTML += `<tr>
-        <td><b style="color:var(--vib-blue)">${r.package}</b></td>
-        <td><b style="color:var(--red)">${r.rate}%</b></td>
-        <td style="font-size:12px;color:var(--dim)">${r.note || '—'}</td>
-      </tr>`;
-    });
-  }
+  // 1. Render Bảng VIB (Chi tiết Package)
+  tHouse.innerHTML = `<tr style="background:var(--bg3)"><th colspan="3" style="color:var(--vib-orange);text-align:center">🔥 GÓI VAY VIB ƯU VIỆT (CẬP NHẬT 06.04)</th></tr>
+                      <tr><th>Gói cố định</th><th>Lãi suất</th><th>Ghi chú</th></tr>`;
+  
+  currentVibRates.bds_fix.forEach(r => {
+    tHouse.innerHTML += `<tr>
+      <td><b style="color:var(--vib-blue)">${r.package}</b></td>
+      <td><b style="color:var(--red)">${r.rate}%</b></td>
+      <td style="font-size:10px;color:var(--dim)">${r.note}</td>
+    </tr>`;
+  });
 
   // 2. Render SME Campaigns
-  if (tSme) {
-    tSme.innerHTML = `<tr><th>Sản phẩm SME</th><th>Lãi suất</th><th>Chiến dịch / Đặc quyền</th></tr>`;
-    if (currentVibRates.sme_business && currentVibRates.sme_business.length > 0) {
-      currentVibRates.sme_business.forEach(r => {
-        tSme.innerHTML += `<tr>
-          <td><b>${r.package}</b></td>
-          <td><b style="color:var(--green)">${r.rate}%</b></td>
-          <td style="font-size:12px;color:var(--dim)">${r.note || '—'}</td>
-        </tr>`;
-      });
-    }
+  if (tCar) {
+    tCar.innerHTML = `<tr style="background:var(--bg3)"><th colspan="3" style="color:var(--vib-orange);text-align:center">🚀 CHIẾN DỊCH SME - VAY KINH DOANH</th></tr>
+                      <tr><th>Loại hình</th><th>Lãi suất</th><th>Đặc quyền</th></tr>`;
+    currentVibRates.sme_business.forEach(r => {
+      tCar.innerHTML += `<tr>
+        <td><b>${r.package}</b></td>
+        <td><b style="color:var(--green)">${r.rate}%</b></td>
+        <td style="font-size:10px;color:var(--dim)">${r.note}</td>
+      </tr>`;
+    });
   }
 }
 
